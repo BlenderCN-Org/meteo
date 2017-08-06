@@ -62,8 +62,7 @@ class BeautifulMeteo(GetConfig):
 
         super().__init__()
 
-        meteo_conf = self.conf
-        self.debug = meteo_conf["test"]["debug"]
+        self.debug = self.conf["test"]["debug"]
         self.file_path_name = file_path_name
         self.tools = MeteoTools()
 

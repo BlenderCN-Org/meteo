@@ -42,7 +42,9 @@ Résultat de calcul des écarts
 Suivi des calculs des écarts:
     gaps_files.txt dans meteo_forecast
 
-Lit tous les fichiers à analyser, analyse avec
+Lit tous les fichiers à analyser, analyse
+avec BeautifulMeteo
+ou BeautifulMeteoNew
     BeautifulMeteo.forecast =
     {'2017_07_29_01': { '2017_08_10': ['jeudi 10', 13, 26, 'Éclaircies'],
                         '2017_08_06': ['dimanche 06', 14, 26, 'Éclaircies'],
@@ -55,79 +57,103 @@ Lit tous les fichiers à analyser, analyse avec
 import os, sys
 from json import dumps
 from beautiful_meteo import BeautifulMeteo
+from beautiful_meteo_new import BeautifulMeteoNew
 from get_config import GetConfig
+from meteo_tools import MeteoTools
 #from collections import OrderedDict
 
 
-## Variable globale à définir
-# Le dossier avec les fichiers à lire
-file_dir = "meteo_files"
-
-# Les fichiers de destination des json des résultats des analyses du mois
-result_file = "result_2017_08.txt"
-
-# La liste des fichiers analysés
-analysed_files = "analysed_files.txt"
-
-# Le json des écarts du mois dans un json
-gaps_file = "gaps_2017_08.txt"
-
-
 class UnAnalysed(GetConfig):
-    """Recherche dans les dossiers les fichiers pas encore analysés."""
+    """Recherche dans les dossiers les fichiers pas encore analysés.
+    all = {     '2017_08': ['meteo_2017_08_03_16_05_39.html'],
+                '2017_09': ['meteo_2017_09_03_16_05_39.html']}
 
-    def __init__(self, file_path_name):
-        """."""
+    analysed = {'2017_08': ['meteo_2017_08_05_16_05_39.html'],
+                '2017_09': []}
+    """
 
+    def __init__(self):
         super().__init__()
 
-        self.meteo_conf = self.conf
-        self.debug = meteo_conf["test"]["debug"]
-        self.meteo_files = meteo_conf["directory"]["meteo_files"]
+        self.debug = self.conf["test"]["debug"]
+        self.meteo_files = self.conf["directory"]["meteo_files"]
+        self.analysed_dir = self.conf["directory"]["analysed_dir"]
+        self.tools = MeteoTools()
 
     def get_unanalysed(self):
-        pass
+        """Retourne les fichiers non analysés dans une liste,
+        avec chemin absolu.
+        """
+
+        tous = self.tools.get_all_files(self.meteo_files)
+        vu  = self.tools.get_all_files(self.analysed_dir)
+
+        tous_list = self.tools.files_dict_to_list(tous)
+        vu_list = self.tools.files_dict_to_list(vu)
+
+        # All items from tous_list that are not in vu_list
+        pas_vu = [item for item in tous_list if item not in vu_list]
+
+        return pas_vu
 
 
-class MeteoFilesBatch(UnAnalysed, GetConfig):
+class MeteoFilesBatch(UnAnalysed):
     """Recherche dans les dossiers les fichiers pas encore analysés,
     puis les analyse avec BeautifulMeteo.
     """
 
-    def __init__(self, file_path_name):
-        '''Chemin absolu avec nom du fichier.'''
-
+    def __init__(self):
         super().__init__()
 
-        meteo_conf = self.conf
-        self.debug = meteo_conf["test"]["debug"]
+    def get_date(self, fichier):
+        """Retourne 0 si avant le 2017_08_02 à 00h00, 1 sinon
+        avec chemin relatif:
+        fichier = /meteo_files/2017_06/meteo_2017_06_11_16_05_30.html
+        """
 
-    def forecast_to_global_dict(file_list_sorted):
-        global_dict = {}
+        # key = 2017_06_11_16
+        key = fichier[27:-5]
+        real_date = self.tools.get_real_date_time(key)
+        print(key, real_date)
 
-        for fichier in file_list_sorted:
-            #forecast = get_forecast("file/" + fichier)
-            forecast  = BeautifulMeteo(fichier)
-            forecast.get_forecast()
-            for k, v in forecast.forecast.items():
-                global_dict[k] = v
+        if 1:
+            new = 1
+        else:
+            new = 0
+        return new
 
-        return global_dict
+    def analyse(self, pas_vu):
+        """Analyse en fonction de la date du fichier.
+        Fichiers dans une liste.
+        """
+
+        for f in pas_vu:
+            # à partir du 2017_08_02 à 00h00
+            if 1:
+                result = self.analyse_beautiful_meteo_new(f)
+            else:
+                result = self.analyse_beautiful_meteo(f)
+
+    def analyse_beautiful_meteo(self, fichier):
+        """Fichier: nom avec chemin absolu."""
+
+        bm = BeautifulMeteo(fichier)
+
+    def analyse_beautiful_meteo_new(self, fichier):
+        bmn = BeautifulMeteoNew(fichier)
+
+    def forecast_to_global_dict():
+
+        pass
 
 
 
-def main(file_dir, fichier):
-    # Liste des fichiers dans le dossier file
-    file_list = get_file_list(file_dir)
-    print("Nombre de fichier =", len(file_list))
+def main():
+    mfb = MeteoFilesBatch()
+    pas_vu = mfb.get_unanalysed()
+    mfb.analyse(pas_vu)
 
-    # Analyse des fichiers triés
-    global_dict = forecast_to_global_dict(file_list_sorted)
-
-    # Ecriture dans un fichier du json
-    fichier = "first_new_1.txt"
-    write_json(global_dict, fichier)
 
 if __name__ == "__main__":
 
-    main(file_dir, fichier)
+    main()

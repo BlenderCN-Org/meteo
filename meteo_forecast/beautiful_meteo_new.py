@@ -24,11 +24,11 @@
 
 
 """
-################  Valable à partir du 2017 08 02 à 00h00 ################
+################  Valable à partir du 2017_08_02 à 00h00 ################
 
 Lit le fichier meteo_2017_07_29_01_05_09.html
 
-L'attribut forecast de BeautifulMeteo retourne:
+L'attribut forecast de BeautifulMeteoNew retourne:
 
 {'2017_07_29_01': { '2017_08_10': ['jeudi 10', 13, 26, 'Éclaircies'],
                     '2017_08_06': ['dimanche 06', 14, 26, 'Éclaircies'],
@@ -46,7 +46,7 @@ from meteo_tools import MeteoTools
 from get_config import GetConfig
 
 
-class BeautifulMeteo(GetConfig):
+class BeautifulMeteoNew(GetConfig):
     '''Fouille dans la page pour trouver les
     températures mini, maxi, type de temps
     des 13 jours suivant le jour/heure courant.
@@ -60,8 +60,7 @@ class BeautifulMeteo(GetConfig):
 
         super().__init__()
 
-        meteo_conf = self.conf
-        self.debug = meteo_conf["test"]["debug"]
+        self.debug = self.conf["test"]["debug"]
         self.file_path_name = file_path_name
         self.tools = MeteoTools()
 
@@ -90,6 +89,11 @@ class BeautifulMeteo(GetConfig):
             print("Liste des 13 jours suivant le {}: \n{} \n".
                     format(self.today_key[:-3], self.thirteen_days))
 
+        # La liste des 14 jours
+        self.days_list = [self.today_key]
+        for d in self.thirteen_days:
+            self.days_list.append(d)
+
     def get_today_key(self):
         """Retourne la clé du dict qui contiendra toutes les prévisions
         issues du fichier, construit avec le chemin/nom du fichier:
@@ -112,84 +116,101 @@ class BeautifulMeteo(GetConfig):
 
     def get_forecast(self):
         """Dans la page html, trouve les températures mini maxi type de temps
-            pour les 13 jours suivant.
+        pour les 14 jours en cours.
         """
+
+        # Défini self.liste_jours
+        self.get_liste_jours()
+
+        # Défini days = ["mar 12", "mer 13", etc ...] 14 jours
+        days = self.get_jours()
+
+        # Défini t_min = [12, 13, etc ...]
+        tm = self.get_t_min()
+
+        # Défini t_max = [12, 13, etc ...]
+        tM = self.get_t_max()
+
+        # Défini type_temps = ["pluie", "soleil", etc ...]
+        type_temps = self.get_type_temps()
+
+        # Dans forecast
+        self.set_forecast(days, tm, tM, type_temps)
+
+    def set_forecast(self, days, tm, tM, type_temps):
+        """Le tout dans le dict forecast."""
+
+        for i in range(14):
+            self.frcst_dict[self.days_list[i]] = [days[i], tm[i], tM[i],
+                                                  type_temps[i]]
+
+    def get_liste_jours(self):
+        """Retourne la partie de la page html avec toutes les infos."""
 
         soup = BeautifulSoup(self.fichier)
 
-        group_days_summary = soup.find_all("div", class_="group-days-summary")
-        bloc_day_summary_0 = group_days_summary[0].find_all("article",
-                                                    class_="bloc-day-summary")
-        bloc_day_summary_1 = group_days_summary[1].find_all("article",
-                                                    class_="bloc-day-summary")
+        # <div class="liste-jours">
+        self.liste_jours = soup.find_all("div", class_="liste-jours")
 
+    def get_jours(self):
+        """Récupération des jours."""
 
-        # 7 jours
-        for i in range(0, 6):
-            print(i)
-            # Le jour traité
-            my_day = self.thirteen_days[i]
+        jours = self.liste_jours[0].find_all("a")
 
-            jour = group_days_summary[0].find_all("a",
-                                               href="#detail-day-0" + str(i+2))
-            jour = jour[0].text
+        # Récupération dans une liste de 14
+        days = []
+        for elt in jours:
+             days.append(elt.get_text())
+        return days
 
-            # <span class="min-temp">6°C Minimale</span>
-            tmin = bloc_day_summary_0[i-1].find("span", class_="min-temp")
-            #'12°C Minimale',
-            tmin = int(tmin.string[:-11])
+    def get_t_min(self):
+        """Récupération des temps mini."""
 
-            # <span class="max-temp">17°C Maximale</span>
-            tmax = bloc_day_summary_0[i-1].find("span", class_="max-temp")
-            # '29°C Maximale'
-            tmax = int(tmax.text[:-11])
+        min_temp = self.liste_jours[0].find_all("span", class_="min-temp")
 
-            day_summary_image = bloc_day_summary_0[i-1].find("li",
-                                                    class_="day-summary-image")
-            picTemps = day_summary_image.find("span")
-            temps = picTemps.text
+        tm = []
+        for elt in min_temp:
+            # Coupe de °C Minimale
+            tm.append(int(elt.get_text()[:-11]))
+        return tm
 
-            self.frcst_dict[my_day] = [jour, tmin, tmax, temps]
+    def get_t_max(self):
+        """Récupération des temps maxi."""
 
-            self.frcst_dict[my_day] = [jour, tmin, tmax, temps]
+        # temp maxi
+        max_temp = self.liste_jours[0].find_all("span", class_="max-temp")
 
-        # 7 jours suivant
-        bloc_day_summary = group_days_summary[1].find_all("article",
-                                                    class_="bloc-day-summary")
+        tM = []
+        for elt in max_temp:
+            tM.append(int(elt.get_text()[:-11]))
+        return tM
 
-        for i in range(0, 6):
-            print(i)
-            my_day = self.thirteen_days[i + 7]
-            jour = bloc_day_summary[i+1].find_all("header")
-            jour = jour[0].find_all("h4")
-            jour = jour[0].text
+    def get_type_temps(self):
+        """<dd class="pic40 J_W1_0-N_1">Éclaircies</dd>
+        TODO : Je ne comprends pas
+        toto = Éclaircies
+                    14°C Minimale 29°C Maximale
+        """
 
-            # <span class="min-temp">6°C Minimale</span>
-            tmin = bloc_day_summary_1[i-1].find("span", class_="min-temp")
-            tmin = int(tmin.text[:-11])
-
-            # <span class="max-temp">17°C Maximale</span>
-            tmax = bloc_day_summary_1[i-1].find("span", class_="max-temp")
-            tmax = int(tmax.text[:-11])
-
-            day_summary_image = bloc_day_summary_1[i-1].find("li",
-                                                    class_="day-summary-image")
-            picTemps = day_summary_image.find("span")
-            picTemps.text
-
-            self.frcst_dict[my_day] = [jour, tmin, tmax, temps]
+        type_temps = self.liste_jours[0].find_all("dd")
+        tt = []
+        for elt in type_temps:
+            toto = elt.get_text()
+            if not "°C" in toto:
+                tt.append(toto.splitlines()[0])  # la 1ère ligne
+        return tt
 
 def test():
 
-    file_path_name =  "meteo_files/2017_08/meteo_2017_08_02_09_05_53.html"
+    file_path_name =  "meteo_files/2017_08/meteo_2017_08_05_18_18_14.html"
 
-    forecast = BeautifulMeteo(file_path_name)
+    forecast = BeautifulMeteoNew(file_path_name)
     forecast.get_forecast()
 
-    print(forecast.forecast)
+    print("Prévisions\n", forecast.forecast, "\n")
 
     tools = MeteoTools()
-    tools.print_all_key_value(forecast.forecast['2017_08_02_09'])
+    tools.print_all_key_value(forecast.forecast)
 
 
 if __name__ == "__main__":

@@ -42,7 +42,7 @@ import ast
 from configparser import SafeConfigParser
 
 
-class MyConfig():
+class MyConfig:
     """Charge la configuration depuis le fichier *.ini,
     sauve les changement de configuration,
     enregistre les changements par section, clé.
@@ -70,7 +70,7 @@ class MyConfig():
             for key, value in parser.items(section_name):
                 self.conf[section_name][key] = ast.literal_eval(value)
 
-        print("\nConfiguration chargée depuis {}".format(self.ini))
+        print("\nConfiguration chargée depuis {}\n".format(self.ini))
 
     def save_config(self, section, key, value):
         '''Sauvegarde dans le fichioer *.ini  avec section, key, value.

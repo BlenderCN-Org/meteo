@@ -90,7 +90,7 @@ class DownloadMeteo:
 
 def main():
     # Pour test
-    debug = 1
+    debug = 0
 
     # Url d'orléans
     meteo_url = "http://www.meteofrance.com/previsions-meteo-france/orleans/45000"
