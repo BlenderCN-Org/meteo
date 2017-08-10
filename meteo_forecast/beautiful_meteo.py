@@ -3,6 +3,7 @@
 
 ## beautiful_meteo.py
 
+'''
 #############################################################################
 # Copyright (C) Labomedia Juin 2017
 #
@@ -23,32 +24,16 @@
 #############################################################################
 
 
-"""
 ################  Valable jusqu'au 2017 08 01 à 23h59 ################
-
-Ensuite voir beautiful_meteo_new.py
-
-Lit le fichier meteo_2017_07_29_01_05_09.html
-
-L'attribut forecast de BeautifulMeteo retourne:
-
-{'2017_07_29_01': { '2017_08_10': ['jeudi 10', 13, 26, 'Éclaircies'],
-                    '2017_08_06': ['dimanche 06', 14, 26, 'Éclaircies'],
-                    '2017_08_11': ['vendredi 11', 13, 26, 'Éclaircies'],
-                    '2017_08_08': ['mardi 08', 14, 26, 'Éclaircies'],
-                    ..... }}
-
-"""
-
+'''
 
 #from collections import OrderedDict
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from meteo_tools import MeteoTools
-from get_config import GetConfig
 
 
-class BeautifulMeteo(GetConfig):
+class BeautifulMeteo(MeteoTools):
     '''Fouille dans la page pour trouver les
     températures mini, maxi, type de temps
     des 13 jours suivant le jour/heure courant.
@@ -61,13 +46,11 @@ class BeautifulMeteo(GetConfig):
         '''Chemin absolu avec nom du fichier.'''
 
         super().__init__()
-
-        self.debug = self.conf["test"]["debug"]
+        self.debug = 0
         self.file_path_name = file_path_name
-        self.tools = MeteoTools()
 
         # Le fichier à analyser
-        self.fichier = self.tools.read_file(self.file_path_name)
+        self.fichier = self.read_file(self.file_path_name)
 
         self.forecast = {}  #OrderedDict()
 
@@ -75,7 +58,7 @@ class BeautifulMeteo(GetConfig):
         self.today_key = self.get_today_key()
 
         # Aujourd'hui en 2017-07-29 01:00:00
-        self.today = self.tools.get_real_date_time(self.today_key)
+        self.today = self.get_real_date_time(self.today_key + "_00")
 
         # Le dict pour le jour/heure
         self.forecast[self.today_key] = {}  #OrderedDict()
@@ -86,10 +69,14 @@ class BeautifulMeteo(GetConfig):
             print("Clé du dict ordonné:", self.today_key, "\n")
 
         # La liste des 13 jours suivant le jour courant
-        self.thirteen_days = self.tools.get_thirteen_days(self.today)
+        self.thirteen_days = self.get_thirteen_days(self.today)
+
+        self.thirteen_days.insert(0, self.today_key[:-3])
+        self.fourteen_days = self.thirteen_days
+
         if self.debug:
-            print("Liste des 13 jours suivant le {}: \n{} \n".
-                    format(self.today_key[:-3], self.thirteen_days))
+            print("14 jours {}".format(self.fourteen_days))
+            print(len(self.fourteen_days))
 
     def get_today_key(self):
         """Retourne la clé du dict qui contiendra toutes les prévisions
@@ -124,14 +111,12 @@ class BeautifulMeteo(GetConfig):
         bloc_day_summary_1 = group_days_summary[1].find_all("article",
                                                     class_="bloc-day-summary")
 
-
-        # 6 jours
-        for i in range(0, 6):
+        # 7 jours
+        for i in range(0, 7):
             # Le jour traité
-            my_day = self.thirteen_days[i]
-
+            my_day = self.fourteen_days[i]
             jour = group_days_summary[0].find_all("a",
-                                                href="#detail-day-0" + str(i+2))
+                                                href="#detail-day-0" + str(i+1))
             jour = jour[0].text
 
             # <span class="min-temp">6°C Minimale</span>
@@ -155,9 +140,9 @@ class BeautifulMeteo(GetConfig):
         bloc_day_summary = group_days_summary[1].find_all("article",
                                                     class_="bloc-day-summary")
 
-        for i in range(0, 6):
-            my_day = self.thirteen_days[i + 7]
-            jour = bloc_day_summary[i+1].find_all("header")
+        for i in range(0, 7):
+            my_day = self.fourteen_days[i + 7]
+            jour = bloc_day_summary[i].find_all("header")
             jour = jour[0].find_all("h4")
             jour = jour[0].text
 
@@ -178,15 +163,15 @@ class BeautifulMeteo(GetConfig):
 
 
 def test():
+
+    # Chemin relatif
     file_path_name = "meteo_files/2017_07/meteo_2017_07_29_01_05_09.html"
 
     forecast = BeautifulMeteo(file_path_name)
     forecast.get_forecast()
-
+    print(len(forecast.forecast['2017_07_29_01']))
     print(forecast.forecast)
 
-    tools = MeteoTools()
-    tools.print_all_key_value(forecast.forecast['2017_07_29_01'])
 
 
 if __name__ == "__main__":

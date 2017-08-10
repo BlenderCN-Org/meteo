@@ -23,44 +23,6 @@
 #############################################################################
 
 
-"""
-dans first.txt
-
-{
-"2017_06_23_05_05_10": {
-                            "2017/06/29 05:05": ["jeudi 29", 14, 22, "Rares averses"],
-                            "2017/06/27 05:05": ["mardi 27", 14, 30, "\u00c9claircies"],
-                            "2017/07/01 05:05": ["samedi 01", 11, 21, "Rares averses"],
-                            "2017/07/05 05:05": ["mercredi 05", 13, 24, "Rares averses"],
-                            "2017/07/02 05:05": ["dimanche 02", 11, 22, "Rares averses"],
-                            "2017/06/28 05:05": ["mercredi 28", 15, 24, "Averses orageuses"],
-                            "2017/07/04 05:05": ["mardi 04", 13, 24, "Rares averses"],
-                            "2017/06/26 05:05": ["lundi 26", 15, 27, "Pluies \u00e9parses"],
-                            "2017/06/24 05:05": ["samedi 24", 16, 29, "Ensoleill\u00e9"],
-                            "2017/07/03 05:05": ["lundi 03", 12, 23, "Rares averses"],
-                            "2017/06/30 05:05": ["vendredi 30", 12, 21, "Rares averses"],
-                            "2017/06/23 05:05": ["vendredi 23", 12, 21, "Rares averses"],
-                            "2017/06/25 05:05": ["dimanche 25", 14, 28, "\u00c9claircies"]
-                        },
-"2017_06_26_15_05_09": {
-                            "2017/07/04 15:05": ["mardi 04", 13, 28, "Averses orageuses"],
-                            "2017/07/06 15:05": ["jeudi 06", 13, 25, "Averses orageuses"],
-                            "2017/06/29 15:05": ["jeudi 29", 14, 22, "Rares averses"],
-                            "2017/07/01 15:05": ["samedi 01", 11, 19, "Averses orageuses"],
-                            "2017/06/26 15:05": ["lundi 26", 11, 21, "Rares averses"],
-                            "2017/06/27 15:05": ["mardi 27", 14, 28, "Rares averses"],
-                            "2017/07/03 15:05": ["lundi 03", 12, 24, "Averses orageuses"],
-                            "2017/07/05 15:05": ["mercredi 05", 14, 26, "Averses orageuses"],
-                            "2017/07/07 15:05": ["vendredi 07", 14, 26, "Averses orageuses"],
-                            "2017/06/30 15:05": ["vendredi 30", 11, 21, "Rares averses"],
-                            "2017/07/08 15:05": ["samedi 08", 14, 25, "Averses orageuses"],
-                            "2017/06/28 15:05": ["mercredi 28", 16, 25, "Risque d'orages"],
-                            "2017/07/02 15:05": ["dimanche 02", 11, 20, "Averses orageuses"]
-                        },
-"2017_06_20_12_05_32": {"2017/06/23 12:05": ["vendredi 23", 20, 36, "Ensoleill\u00e9"], ...
-"""
-
-
 from time import sleep
 import json
 from datetime import datetime

@@ -3,6 +3,7 @@
 
 ## beautiful_meteo_new.py
 
+'''
 #############################################################################
 # Copyright (C) Labomedia Juin 2017
 #
@@ -23,30 +24,15 @@
 #############################################################################
 
 
-"""
 ################  Valable à partir du 2017_08_02 à 00h00 ################
+'''
 
-Lit le fichier meteo_2017_07_29_01_05_09.html
-
-L'attribut forecast de BeautifulMeteoNew retourne:
-
-{'2017_07_29_01': { '2017_08_10': ['jeudi 10', 13, 26, 'Éclaircies'],
-                    '2017_08_06': ['dimanche 06', 14, 26, 'Éclaircies'],
-                    '2017_08_11': ['vendredi 11', 13, 26, 'Éclaircies'],
-                    '2017_08_08': ['mardi 08', 14, 26, 'Éclaircies'],
-                    ..... }}
-
-"""
-
-
-#from collections import OrderedDict
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from meteo_tools import MeteoTools
-from get_config import GetConfig
 
 
-class BeautifulMeteoNew(GetConfig):
+class BeautifulMeteoNew:
     '''Fouille dans la page pour trouver les
     températures mini, maxi, type de temps
     des 13 jours suivant le jour/heure courant.
@@ -58,25 +44,23 @@ class BeautifulMeteoNew(GetConfig):
     def __init__(self, file_path_name):
         '''Chemin absolu avec nom du fichier.'''
 
-        super().__init__()
-
-        self.debug = self.conf["test"]["debug"]
+        self.debug = 0
         self.file_path_name = file_path_name
         self.tools = MeteoTools()
 
         # Le fichier à analyser
         self.fichier = self.tools.read_file(self.file_path_name)
 
-        self.forecast = {}  #OrderedDict()
+        self.forecast = {}
 
         # La clé du dict en 2017_07_29_01
         self.today_key = self.get_today_key()
 
         # Aujourd'hui en 2017-07-29 01:00:00
-        self.today = self.tools.get_real_date_time(self.today_key)
+        self.today = self.tools.get_real_date_time(self.today_key + "_00")
 
         # Le dict pour le jour/heure
-        self.forecast[self.today_key] = {}  #OrderedDict()
+        self.forecast[self.today_key] = {}
 
         # Une variable pour enregistrer les prévisions simplement
         self.frcst_dict = self.forecast[self.today_key]
@@ -90,18 +74,15 @@ class BeautifulMeteoNew(GetConfig):
                     format(self.today_key[:-3], self.thirteen_days))
 
         # La liste des 14 jours
-        self.days_list = [self.today_key]
+        self.days_list = [self.today_key[:-3]]
         for d in self.thirteen_days:
             self.days_list.append(d)
 
     def get_today_key(self):
         """Retourne la clé du dict qui contiendra toutes les prévisions
         issues du fichier, construit avec le chemin/nom du fichier:
-
-        file/2017_06/meteo_2017_06_11_16_05_30.html
-
+        meteo_files/2017_06/meteo_2017_06_11_16_05_30.html
         donne
-
         clé = 2017_06_11_16
         """
 
@@ -200,8 +181,9 @@ class BeautifulMeteoNew(GetConfig):
                 tt.append(toto.splitlines()[0])  # la 1ère ligne
         return tt
 
-def test():
 
+def test():
+    # Chemin relatif
     file_path_name =  "meteo_files/2017_08/meteo_2017_08_05_18_18_14.html"
 
     forecast = BeautifulMeteoNew(file_path_name)
@@ -209,8 +191,6 @@ def test():
 
     print("Prévisions\n", forecast.forecast, "\n")
 
-    tools = MeteoTools()
-    tools.print_all_key_value(forecast.forecast)
 
 
 if __name__ == "__main__":

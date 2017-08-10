@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-## meteo_gaps_batch.py
+## meteo_gap.py
 
 #############################################################################
 # Copyright (C) Labomedia Juin 2017
@@ -29,19 +29,28 @@ from datetime import datetime
 from collections import OrderedDict
 from meteo_tools import MeteoTools
 
-## Variable globale à définir
-# Fichier avec data issues de meteo_file_parser.py
-file_name = 'first_new_1.txt'
+
+## Variable globale
+# Le dossier avec tous les fichiers de Météo France
+METEO_FILES_DIR = "meteo_files"
+
+# Fichier non json, 1 ligne par fichier météo
+ANALYSED = "output/analysed.txt"
+
+# Le json des analyses, non trié
+FORECAST = "output/forecast.txt"
+
+# Le json des écarts
+GAPS = "output/gaps.txt"
 
 
-class MeteoGap:
+class MeteoGap(MeteoTools):
     """Excécute le gap d'un fichier meteo."""
 
     def __init__(self):
 
-        self.tools = MeteoTools()
-        self.weather_types = self.tools.get_weather_types
-
+        super().__init__()
+        self.weather_types = self.get_weather_types()
 
     def get_days(self, data):
         """Retourne la liste    """
@@ -51,7 +60,8 @@ class MeteoGap:
             if date_heure not in days:
                 days.append(date_heure)
         print("Nombre de day enregistrés =", len(days))
-        days = sort_days(days)
+        days.sort()
+
         return days
 
     def get_date_jour(self, num):
@@ -166,18 +176,6 @@ class MeteoGap:
 
         return gaps
 
-    def get_sorted_gaps(self, gaps):
-        '''TODO: tri sur quoi ?'''
-
-        sorted_gaps = gaps   #OrderedDict()
-
-        for jour, gaps_list in sorted_gaps.items():
-            pass
-
-
-        #print(sorted_gaps)
-        return sorted_gaps
-
     def sort_gaps(self, days):
         """Liste de 2017_06_23_05, '2017_06_27_17' """
 
@@ -214,12 +212,14 @@ class MeteoGap:
                 sleep(0.001)
 
 
-def main(file_name):
-    # Récup des datas dans le fichier first.txt
-    data = get_data(file_name)
+def main():
+    mg = MeteoGap()
+
+    # Récup des datas dans le fichier FORECAST
+    data = mg.get_json_file(FORECAST)
 
     # Récup des jours/heurs avec prévisions
-    days = get_days(data)
+    days = mg.get_days(data)
     print("Nombre de jours/heures", len(days))
 
     # Récup des jours seuls
@@ -245,4 +245,4 @@ def main(file_name):
 
 if __name__ == "__main__":
 
-    main(file_name)
+    main()

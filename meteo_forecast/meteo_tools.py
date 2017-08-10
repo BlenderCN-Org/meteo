@@ -3,6 +3,7 @@
 
 ## meteo_tools.py
 
+'''
 #############################################################################
 # Copyright (C) Labomedia Juin 2017
 #
@@ -21,13 +22,14 @@
 #  Inc., 51 Franproplin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 #############################################################################
-
+'''
 
 import os
 from pathlib import Path
-from json import dumps
+from json import dumps, loads
 from datetime import datetime, timedelta
-#from collections import OrderedDict
+from collections import OrderedDict
+
 
 """Des méthodes souvent appelées par les autres scripts."""
 
@@ -80,8 +82,47 @@ class MeteoTools:
     def write_data_in_file(self, data, fichier):
         """Ecrit les data dans le fichier, écrase l'existant."""
 
-        with open(fichier, 'w') as fd:
-            fd.write(data)
+        with open(fichier, 'w') as f:
+            f.write(data)
+        f.close()
+
+    def get_json_file(self, fichier):
+        '''Retourne le json décodé des datas lues
+        dans le fichier avec son chemin/nom.
+        '''
+
+        # Open our local file
+        with open(fichier) as f:
+            data = f.read()
+        f.close()
+
+        data = loads(data)
+
+        return data
+
+    def write_json_file(self, data, fichier):
+        """Converti en json, écrit les data dans le fichier,
+        écrase l'existant.
+        """
+
+        data = dumps(data)
+        with open(fichier, 'w') as f:
+            f.write(data)
+        f.close()
+
+    def dict_sum(self, dict1, dict2):
+        # Somme de 2 dictionnaires
+        # TODO vérifier qu'ils sont dict
+        tout = dict1.copy()
+        tout.update(dict2)
+        return tout
+
+    def append_to_file(self, lines, fichier):
+        """Ajoute une liste de data au fichier"""
+
+        with open(fichier, 'a') as f:
+            f.write('\n'.join(lines))
+        f.close()
 
     def data_to_json(self, data):
         """Retourne le json des datas"""
@@ -89,9 +130,9 @@ class MeteoTools:
         return dumps(data)
 
     def get_real_date_time(self, key):
-        """Retourne 2017-06-11 16:00:00 avec 2017_06_11_16 """
+        """Retourne 2017-06-11 16:59:00 avec 2017_06_11_16_59 """
 
-        return datetime.strptime(key, '%Y_%m_%d_%H')
+        return datetime.strptime(key, '%Y_%m_%d_%H_%M')
 
     def get_date_hour_key_from_datetime(self, day_time):
         """Retourne le str 2017_06_11_16 avec 2017-06-11 16:05:30 de type datetime."""
@@ -238,9 +279,10 @@ class MeteoTools:
 
         try:
             Path(directory).mkdir(mode=0o777, parents=False)
-            print("Le répertoire {} a été créé.".format(directory))
+            print("Création du répertoire: {}".format(directory))
         except FileExistsError as e:
-            print(e)
+            #print(e)
+            pass
 
     def get_absolute_path(self, a_file_or_a_directory):
         """Retourne le chemin absolu d'un répertoire ou d'un fichier
@@ -261,7 +303,12 @@ class MeteoTools:
         # Création
         self.create_directory(meteo_files_path + "/" + year_month)
 
-        print("Le répertoire {} a été créé ou existe".format(year_month))
+    def get_str_from_datetime(day):
+        """Retourne le str 2017_06_11_16
+        avec 2017-06-11 16:05:30 de type datetime
+        """
+
+        return '{:%Y_%m_%d_%H}'.format(day)
 
 
 def test0():
@@ -292,7 +339,7 @@ def test1():
     tools = MeteoTools()
 
     # test
-    key = '2015_03_22_05'
+    key = '2015_03_22_05_59'
 
     # real date time: 2015-03-22 05:00:00
     real_date_time = tools.get_real_date_time(key)
@@ -342,9 +389,35 @@ def test2():
     files_list = tools.files_dict_to_list(files_dict)
     print(files_list, len(files_list))
 
+def test3():
+    tools = MeteoTools()
+    lines = ["toto", "hghg", "hjhjuihuug g yyyb"]
+    fichier = "test.txt"
+    tools.append_to_file(lines, fichier)
 
+def test4():
+    tools = MeteoTools()
+    fichier = "output/gaps.txt"
+
+    data = [1, 2, 3]
+    tools.write_json_file(data, fichier)
+
+
+    data = tools.get_json_file(fichier)
+    print(type(data))
+
+def test5():
+    tools = MeteoTools()
+    a = []
+    # 2017_06_11_16
+    for k in ["2017_06_11_16_59", "2017_06_29_16_59", "2017_06_18_20_59"]:
+        real = tools.get_real_date_time(k)
+        a.append(real)
+    print(a)
+    a.sort()
+    print(a)
 
 
 if __name__ == "__main__":
 
-    test2()
+    test7()
