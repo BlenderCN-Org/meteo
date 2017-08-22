@@ -75,7 +75,7 @@ def var_from_ini():
     TODO mettre dans ini
     """
 
-    gl.wide = 6 # largeur de l'écran
+    gl.wide = 6 # largeur de l'écran  en quoi ???????????
     gl.L = 125  #125  # nombre de pixels en largeur
     gl.H = 70  #70  # nombre de pixels en hauteur
     gl.nb = gl.L * gl.H

@@ -25,7 +25,6 @@ target/
 .idea/
 _old/
 test/
-with_opencv/
 meteo_files/
 gaps/
 analysed/

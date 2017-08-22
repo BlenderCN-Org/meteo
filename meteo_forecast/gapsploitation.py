@@ -35,6 +35,9 @@ from meteo_tools import MeteoTools
 # Le json des écarts
 GAPS = "output/gaps.txt"
 
+# Le json de l'exploitation
+GAPSPLOITATION = "output/gapsploitation_3.txt"
+
 
 class GapSploitation(MeteoTools):
     '''Jeu avec les écarts.'''
@@ -45,8 +48,6 @@ class GapSploitation(MeteoTools):
         # Récup des datas dans le fichier GAPS
         self.gaps = self.get_json_file(GAPS)
         self.sort_gaps()
-
-        self.print_some()
 
     def sort_gaps(self):
         '''Tri du dict puis du dict dans le dict.'''
@@ -59,43 +60,70 @@ class GapSploitation(MeteoTools):
             new_v = self.sort_dict(v)
             self.gaps_sorted[k] = new_v
 
-    def sort_dict(self, old_dict):
-        '''Tri d'un dict par clé en date.'''
-
-        new_dict = OrderedDict()
-        old_dict_keys = list(old_dict)
-        old_dict_keys.sort()
-        for k in old_dict_keys:
-            new_dict[k] = old_dict[k]
-
-        return new_dict
-
     def print_some(self):
-        '''
-        Jour, heure 2017_08_07_11
-            2017_08_07 [0, 0, 0]
-            2017_08_08 [15, 21, 25]
-            2017_08_09 [24, 40, 52]
-            2017_08_10 [33, 60, 39]
-            2017_08_11 [44, 92, 12]
-            2017_08_12 [60, 125, 15]
-            2017_08_13 [84, 162, 144]
-            2017_08_14 [98, 196, 7]
-            2017_08_15 [120, 208, 200]
-            2017_08_16 [135, 234, 225]
-            2017_08_17 [140, 250, 30]
-            2017_08_18 [154, 264, 11]
-            2017_08_19 [168, 300, 12]
-            2017_08_20 [182, 338, 13]
-        '''
-
         for cle, value in self.gaps_sorted.items():
             print("\nJour, heure", cle)
             for k1, v1 in value.items():
                 print(k1, v1)
 
+    def get_days(self):
+        self.days = []
+        for k, v in self.gaps.items():
+            for k1, v1 in v.items():
+                if k1 not in self.days:
+                    self.days.append(k1)
+        self.days.sort()
+        print("Nombre de jours en stock:", len(self.days))
+
+    def get_gaps_by_day(self):
+        self.gaps_by_day = {}
+
+        for day in self.days:
+            self.temp_dict = {}
+            for k, v in self.gaps_sorted.items():
+                for k1, v1 in v.items():
+                    if k1 == day:
+                        self.temp_dict[k] = v1
+
+            self.gaps_by_day[day] = self.sort_dict(self.temp_dict)
+
+        self.new_gaps = self.sort_dict(self.gaps_by_day)
+
+    def changes(self):
+        '''Je supprime les répétitions.'''
+
+        old_dict = self.new_gaps.copy()
+
+        new_dict = OrderedDict()
+        last = []
+        for k, v in old_dict.items():
+            new_dict[k] = OrderedDict()
+            for i, j in v.items():
+                if j != last:
+                    print(last)
+                    last = j
+                    new_dict[k][i] = j
+
+        self.new_gaps = new_dict
+
+    def print_gaps(self):
+        for k, v in self.new_gaps.items():
+            print("Prévisions", k)
+            for k1, v1 in v.items():
+                print(k1, v1)
+
+    def save_gapsploitation(self):
+         self.write_json_file(self.new_gaps, GAPSPLOITATION)
+
+
 def main():
     gs = GapSploitation()
+    #gs.print_some()
+    gs.get_days()
+    gs.get_gaps_by_day()
+    gs.changes()
+    gs.save_gapsploitation()
+    #gs.print_gaps()
 
 
 if __name__ == "__main__":

@@ -36,6 +36,17 @@ from collections import OrderedDict
 
 class MeteoTools:
 
+    def sort_dict(self, old_dict):
+        '''Tri d'un dict par clé en date.'''
+
+        new_dict = OrderedDict()
+        old_dict_keys = list(old_dict)
+        old_dict_keys.sort()
+        for k in old_dict_keys:
+            new_dict[k] = old_dict[k]
+
+        return new_dict
+
     def get_all_files(self, master_dir):
         """Retourne un dict avec
         clé = répertoires

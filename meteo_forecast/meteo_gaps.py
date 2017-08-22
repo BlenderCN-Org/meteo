@@ -83,13 +83,22 @@ class MeteoGaps(MeteoTools):
                 if j_h[:-3] == day:
                     # la valeur à 8 heures ! 2017_07_08_05
                     if j_h[11:] == "08":
-                        self.real_weathers[day] = [ prev[day][0],
-                                                    prev[day][1],
-                                                    prev[day][2],
-                                        self.get_weather_types(prev[day][3])]
+                        jour = prev[day][0]
+                        t_min = prev[day][1]
+
+                    elif j_h[11:] == "16":
+                        t_max = prev[day][2]
+
+                    elif j_h[11:] == "14":
+                        wt = self.get_weather_types(prev[day][3])
+
+            self.real_weathers[day] = [ jour,
+                                        t_min,
+                                        t_max,
+                                        wt    ]
 
             if day not in self.real_weathers:
-                self.real_weathers[day] = [0, 0, 0, 0]
+                self.real_weathers[day] = None
 
         print("Nombre de jours avec temps réel", len(self.real_weathers))
 
@@ -133,22 +142,24 @@ class MeteoGaps(MeteoTools):
             # le temps réél du jour
             real_w = self.real_weathers[j_h[:-3]]
 
-            # la liste du jour/heure
-            self.gaps[j_h] = {}
-            # Parcours de v = dict des prév du jour
-            for k, p in prev.items():
-                # Conversion du type de temps en entier
-                wt = self.get_weather_types(p[3])
+            if real_w:
+                # la liste du jour/heure
+                self.gaps[j_h] = {}
+                a = 0
+                # Parcours de prev = dict des prév du jour
+                for k, p in prev.items():
+                    # Conversion du type de temps en entier
+                    wt = self.get_weather_types(p[3])
 
-                # Plus le jour est proche, plus les écarts sont pénalisés
-                e = 1 #14 - self.get_day_gap(j_h + "_59", k + "_23_59")
+                    # Plus le jour est proche, plus les écarts sont pénalisés
+                    e = 1 #14 - self.get_day_gap(j_h + "_59", k + "_23_59")
 
-                ecart = [ (p[1] - real_w[1]) * e,
-                          (p[2] - real_w[2]) * e,
-                          (wt   - real_w[3]) * e ]
+                    ecart = [ (p[1] - real_w[1]) * e,
+                              (p[2] - real_w[2]) * e,
+                              (wt   - real_w[3]) * e ]
 
-                # L'écart du jour/heure
-                self.gaps[j_h][k] = ecart
+                    # L'écart du jour/heure
+                    self.gaps[j_h][k] = ecart
 
         print("Nombre de jours avec écarts", len(self.gaps))
 
