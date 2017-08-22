@@ -28,5 +28,7 @@ test/
 meteo_files/
 gaps/
 analysed/
-
+with_opencv/test
+with_opencv/images
 *.html
+*.txt
