@@ -12,14 +12,17 @@ import numpy as np
 import cv2
 from time import time, sleep
 
-LARG = 1200
-HAUT = 800
+LARG = 640
+HAUT = 480
 
 
 def get_black_image():
     return np.zeros((HAUT, LARG, 1), np.uint8)
 
-IMG = get_black_image()
+# Permet de placer les lines de chaque thread
+# LINES = { 1: DynamicExplosion() du thread 1,
+#           2: DynamicExplosion() du thread 2}
+LINES = {}
 
 
 class HalfWave:
@@ -235,7 +238,7 @@ class DynamicExplosion:
         self.loop = 1
         self.img = get_black_image()
 
-    def get_circles_at_t(self, img):
+    def get_lines_at_t(self):
 
         delta_t = time() - self.t_zero
 
@@ -257,23 +260,19 @@ class DynamicExplosion:
                                                     self.ampli,
                                                     self.pixel)
 
+        return self.static_explosion.lines
+
+    def explosion(self, img):
+
+        lines = self.get_lines_at_t()
         img = self.static_explosion.lines_to_circle(img)
-
         return img
-
-    def explosion(self):
-        '''Affichage de l'explosion.'''
-
-        global IMG
-
-        while self.loop:
-            img = get_black_image()
-            IMG = self.get_circles_at_t(img)
-            sleep(0.03)
 
 
 class Explosions:
     '''Affichage de plusieurs explosions dans une image avec OpenCV.'''
+
+    comptage = -1
 
     def __init__(self):
         # La boucle d'affichage
@@ -301,7 +300,9 @@ class Explosions:
             print("Fréquence =", self.freq)
             self.freq = 0
 
-    def explosion_one(self):
+    def explosion_one(self, numero):
+        global LINES
+
         n = 8
         O = 200, 400
         start = 20
@@ -315,20 +316,23 @@ class Explosions:
         decrease = 200
 
         # Création d'une explosion
-        dyexpl = DynamicExplosion(O, n, start, gap, ampli, pixel, slide, decrease)
-        dyexpl.explosion()
+        LINES[numero] = DynamicExplosion(O, n, start, gap, ampli, pixel, slide, decrease)
+        LINES[numero].explosion(numero)
 
     def explosion_one_start(self):
-        thread_d = threading.Thread(target=self.explosion_one)  #, args=(self.img,))
-        thread_d.start()
+        Explosions.comptage += 1
+        numero = Explosions.comptage
+        t1 = threading.Thread(target=self.explosion_one, args=(numero,))
+        t1.start()
 
-    def explosion_two(self):
+    def explosion_two(self, numero):
+        global LINES
         n = 5
-        O = 800, 600
+        O = 400, 300
         start = 20
         gap = 30
         ampli = 100
-        pixel = 2
+        pixel = 8
 
         # Déplacement linéaire de O sur x,y pendant 1s
         slide = 300
@@ -336,22 +340,34 @@ class Explosions:
         decrease = 300
 
         # Création d'une explosion
-        dyexpl = DynamicExplosion(O, n, start, gap, ampli, pixel, slide, decrease)
-        dyexpl.explosion()
+        LINES[numero] = DynamicExplosion(O, n, start, gap, ampli, pixel, slide, decrease)
+        LINES[numero].explosion(numero)
 
     def explosion_two_start(self):
-        thread_d = threading.Thread(target=self.explosion_two)  #, args=(self.img,))
-        thread_d.start()
+        Explosions.comptage += 1
+        numero = Explosions.comptage
+        t2 = threading.Thread(target=self.explosion_two, args=(numero,))
+        t2.start()
+
+    def lines_to_circles(self, img, numero):
+
+        global LINES
+        img = LINES[numero].explosion(img)
+        return img
 
     def display(self):
-        global IMG
 
         while self.loop:
-            #print("Nouvelle image OpenCV")
             self.update_freq()
 
+            # Recalcul de l'image avec toutes les lines
+            img = get_black_image()
+            for k, v in LINES.items():
+
+                img = self.lines_to_circles(img, k)
+
             # StaticDisplay an image
-            cv2.imshow("Ceci n'est pas une image", IMG)
+            cv2.imshow("Ceci n'est pas une image", img)
 
             # wait for esc key to exit
             key = np.int16(cv2.waitKey(33))
