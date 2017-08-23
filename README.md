@@ -1,4 +1,4 @@
-# Explosions de météo
+# Bangs de météo
 ## Plus les prévisions météo sont mauvaises, plus les images vont lancé des bangs.
 
 ### License and Copyright
