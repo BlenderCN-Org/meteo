@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
-## explosion.py
+## bang.py
 
 
 import os
@@ -21,8 +21,8 @@ def get_black_image():
     return np.zeros((HAUT, LARG, 1), np.uint8)
 
 # Permet de placer les lines de chaque thread
-# LINES = { 1: DynamicExplosion() du thread 1,
-#           2: DynamicExplosion() du thread 2}
+# LINES = { 1: DynamicBang() du thread 1,
+#           2: DynamicBang() du thread 2}
 LINES = {}
 
 
@@ -162,7 +162,7 @@ class Wave(dict):
         return img
 
 
-class StaticExplosion:
+class StaticBang:
     '''Chaque point de Wave devient un cercle de couleur de l'amplitude.'''
 
     def __init__(self, O, n, start, gap, ampli, pixel):
@@ -194,17 +194,12 @@ class StaticExplosion:
 
     def draw_opencv_circle(self, img, C, color, radius):
 
-        centre = C
+        centre = tuple(C)
         thickness = self.pixel
 
         lt = cv2.LINE_AA  # antialiased line
 
-        img = cv2.circle(   img,
-                            centre,
-                            radius,
-                            color,
-                            thickness,
-                            lineType = lt)
+        img = cv2.circle(img, centre, radius, color, thickness, lineType=lt)
         return img
 
     def lines_to_circle(self, img):
@@ -225,8 +220,8 @@ class StaticExplosion:
         return img
 
 
-class DynamicExplosion:
-    '''Les cercles créés par StaticExplosion explosent !!'''
+class DynamicBang:
+    '''Les cercles créés par StaticBang explosent !!'''
 
     def __init__(self, O, n, start, gap, ampli, pixel, slide, decrease):
 
@@ -244,33 +239,38 @@ class DynamicExplosion:
 
         delta_t = time() - self.t_zero
 
-        C = self.O
+        # Glissement=slide du point origine
+        self.O[0] += int((self.slide[0])*delta_t)
+        self.O[1] += int((self.slide[1])*delta_t)
+        C = [self.O[0], self.O[1]]
 
-        self.start += (self.slide/60)*delta_t
-        self.gap = self.gap + (self.slide/60) * delta_t
+        # Décroissance du bang
+        self.start += (self.slide[1]/60)*delta_t
+        self.gap   -= (self.slide[1]/60)*delta_t
         self.ampli = self.ampli - (self.decrease/30)*delta_t
 
+        # self.ampli = 0 va provoquer le del dans LINES
         if self.ampli < 0:
             self.ampli = 0
 
-        self.static_explosion = StaticExplosion(    C,
-                                                    self.n,
-                                                    self.start,
-                                                    self.gap,
-                                                    self.ampli,
-                                                    self.pixel)
+        self.static_bang = StaticBang(  C,
+                                        self.n,
+                                        self.start,
+                                        self.gap,
+                                        self.ampli,
+                                        self.pixel)
 
-        return self.static_explosion.lines
+        return self.static_bang.lines
 
-    def explosion(self, img):
+    def bang(self, img):
 
         lines = self.get_lines_at_t()
-        img = self.static_explosion.lines_to_circle(img)
+        img = self.static_bang.lines_to_circle(img)
         return img
 
 
-class Explosions:
-    '''Affichage de plusieurs explosions dans une image avec OpenCV.'''
+class Bangs:
+    '''Affichage de plusieurs bangs dans une image avec OpenCV.'''
 
     comptage = -1
 
@@ -282,10 +282,10 @@ class Explosions:
         self.freq = 0
         self.img = get_black_image()
 
-        # Lancement d'une explosion
-        self.explosion_one_start()
-        # Lancement d'une autre explosion
-        self.explosion_two_start()
+        # Lancement d'une bang
+        self.bang_one_start()
+        # Lancement d'une autre bang
+        self.bang_two_start()
 
         # Lancement de la fenêtre OpenCV
         self.display()
@@ -300,60 +300,61 @@ class Explosions:
             print("Fréquence =", self.freq)
             self.freq = 0
 
-    def explosion_one(self, numero):
+    def bang_one(self, numero):
         global LINES
 
         n = 8
-        O = 200, 400
+        # list et non tuple
+        O = [200, 400]
         start = 20
         gap = 30
         ampli = 50
         pixel = 2
 
         # Déplacement linéaire de O sur x,y pendant 1s
-        slide = 500
+        slide = 10, -20
         # Diminution de l'amplitude par seconde
         decrease = 200
 
-        # Création d'une explosion
-        LINES[numero] = DynamicExplosion(O, n, start, gap, ampli, pixel, slide, decrease)
-        LINES[numero].explosion(numero)
+        # Création d'une bang
+        LINES[numero] = DynamicBang(O, n, start, gap, ampli, pixel, slide, decrease)
+        LINES[numero].bang(numero)
 
-    def explosion_one_start(self):
-        Explosions.comptage += 1
-        numero = Explosions.comptage
-        t1 = threading.Thread(target=self.explosion_one, args=(numero,))
+    def bang_one_start(self):
+        Bangs.comptage += 1
+        numero = Bangs.comptage
+        t1 = threading.Thread(target=self.bang_one, args=(numero,))
         t1.start()
 
-    def explosion_two(self, numero):
+    def bang_two(self, numero):
         global LINES
         n = 5
-        O = 400, 300
+        O = [1000, 300]
         start = 20
         gap = 30
         ampli = 100
         pixel = 1
 
         # Déplacement linéaire de O sur x,y pendant 1s
-        slide = 300
+        slide = -200, 80
         # Diminution de l'amplitude par seconde
         decrease = 300
 
-        # Création d'une explosion
-        LINES[numero] = DynamicExplosion(   O, n, start, gap, ampli, pixel,
+        # Création d'une bang
+        LINES[numero] = DynamicBang(   O, n, start, gap, ampli, pixel,
                                             slide, decrease)
-        LINES[numero].explosion(numero)
+        LINES[numero].bang(numero)
 
-    def explosion_two_start(self):
-        Explosions.comptage += 1
-        numero = Explosions.comptage
-        t2 = threading.Thread(target=self.explosion_two, args=(numero,))
+    def bang_two_start(self):
+        Bangs.comptage += 1
+        numero = Bangs.comptage
+        t2 = threading.Thread(target=self.bang_two, args=(numero,))
         t2.start()
 
     def lines_to_circles(self, img, numero):
 
         global LINES
-        img = LINES[numero].explosion(img)
+        img = LINES[numero].bang(img)
         return img
 
     def display(self):
@@ -431,8 +432,8 @@ def get_line(A, B):
 def test():
     ''''''
 
-    print("Explosions")
-    Explosions()
+    print("Bangs")
+    Bangs()
 
 
 if __name__ == "__main__":
