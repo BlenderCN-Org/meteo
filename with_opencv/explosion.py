@@ -11,9 +11,10 @@ import threading
 import numpy as np
 import cv2
 from time import time, sleep
+print("Version OpenCV", cv2.__version__)
 
-LARG = 640
-HAUT = 480
+LARG = 1200
+HAUT = 800
 
 
 def get_black_image():
@@ -211,8 +212,11 @@ class StaticExplosion:
         for point in self.lines:
             x = point[0]
             y = point[1]
-            color = abs((y - self.O[1])/self.ampli) * 255
-            color = int(min(color, 255))
+            if self.ampli != 0:
+                color = abs((y - self.O[1])/self.ampli) * 255
+                color = int(min(color, 255))
+            else:
+                color = 0
 
             if x % self.pixel == 0:
                 radius = int(x - self.O[0])
@@ -225,7 +229,7 @@ class DynamicExplosion:
     '''Les cercles créés par StaticExplosion explosent !!'''
 
     def __init__(self, O, n, start, gap, ampli, pixel, slide, decrease):
-        #super().__init__()
+
         self.O = O
         self.n = n
         self.start = start
@@ -235,8 +239,6 @@ class DynamicExplosion:
         self.slide = slide
         self.t_zero = time()
         self.decrease = decrease
-        self.loop = 1
-        self.img = get_black_image()
 
     def get_lines_at_t(self):
 
@@ -245,13 +247,11 @@ class DynamicExplosion:
         C = self.O
 
         self.start += (self.slide/60)*delta_t
-
         self.gap = self.gap + (self.slide/60) * delta_t
-
-        self.ampli = self.ampli - (self.decrease/60)*delta_t
+        self.ampli = self.ampli - (self.decrease/30)*delta_t
 
         if self.ampli < 0:
-            self.loop = 0
+            self.ampli = 0
 
         self.static_explosion = StaticExplosion(    C,
                                                     self.n,
@@ -308,7 +308,7 @@ class Explosions:
         start = 20
         gap = 30
         ampli = 50
-        pixel = 4
+        pixel = 2
 
         # Déplacement linéaire de O sur x,y pendant 1s
         slide = 500
@@ -332,7 +332,7 @@ class Explosions:
         start = 20
         gap = 30
         ampli = 100
-        pixel = 8
+        pixel = 1
 
         # Déplacement linéaire de O sur x,y pendant 1s
         slide = 300
@@ -340,7 +340,8 @@ class Explosions:
         decrease = 300
 
         # Création d'une explosion
-        LINES[numero] = DynamicExplosion(O, n, start, gap, ampli, pixel, slide, decrease)
+        LINES[numero] = DynamicExplosion(   O, n, start, gap, ampli, pixel,
+                                            slide, decrease)
         LINES[numero].explosion(numero)
 
     def explosion_two_start(self):
@@ -362,9 +363,19 @@ class Explosions:
 
             # Recalcul de l'image avec toutes les lines
             img = get_black_image()
+            key_list_to_remove = []
             for k, v in LINES.items():
 
+                # Le coeur du calcul
                 img = self.lines_to_circles(img, k)
+
+                if v.ampli == 0:
+                    print("LINES[{}] à supprimer".format(k))
+                    key_list_to_remove.append(k)
+
+            # Interdiction de supprimer une clé en cours de parcours
+            for i in key_list_to_remove:
+                del LINES[i]
 
             # StaticDisplay an image
             cv2.imshow("Ceci n'est pas une image", img)
