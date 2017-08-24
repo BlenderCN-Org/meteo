@@ -35,7 +35,7 @@ sudo apt-get install blender
 
 
 #### Installation OpenCV
-Il existe un tas de tuto qui explique comment compiler opencv, mais ces tutos sont des reprises d'un pov gars qui a trouvé intelligent de le faire dans un virtualenv, même les chinois ont copié !
+Il existe un tas de tuto qui explique comment compiler opencv, mais ces tutos sont des reprises d'un pov'gars qui a trouvé intelligent de le faire dans un virtualenv, même les chinois ont copié !
 
 ##### Labomedia ne compile pas dans un virtualenv
 Réalisé sur debian jessie 8.3 et python 3.4 avec CmakeGUI Qt
@@ -76,6 +76,7 @@ sudo make install
 ~~~
 
 Quel film ?
+
 « Bonne chance pour une prochaine fois, tas de nullards ! » Boum ! Envoyé ! Je suis bien l'invincible !
 
 ### Merci à:
