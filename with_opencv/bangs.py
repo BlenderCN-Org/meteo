@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
-## bang.py
+## bangs.py
 
 
 import os
@@ -20,10 +20,9 @@ HAUT = 800
 def get_black_image():
     return np.zeros((HAUT, LARG, 1), np.uint8)
 
-# Permet de placer les lines de chaque thread
-# LINES = { 1: DynamicBang() du thread 1,
-#           2: DynamicBang() du thread 2}
-LINES = {}
+# BANGS = { 1: DynamicBang() du bang 1,
+#           2: DynamicBang() du bang 2}
+BANGS = {}
 
 
 class HalfWave:
@@ -203,12 +202,12 @@ class StaticBang:
         return img
 
     def lines_to_circle(self, img):
-
+        print("len(self.lines)", len(self.lines))
         for point in self.lines:
             x = point[0]
             y = point[1]
             if self.ampli != 0:
-                color = abs((y - self.O[1])/self.ampli) * 255
+                color = abs((y - self.O[1])/(self.ampli*1.2)) * 255
                 color = int(min(color, 255))
             else:
                 color = 0
@@ -216,6 +215,8 @@ class StaticBang:
             if x % self.pixel == 0:
                 radius = int(x - self.O[0])
                 img = self.draw_opencv_circle(img, self.O, color, radius)
+
+        print("lines_to_circle dans StaticBang")
 
         return img
 
@@ -249,9 +250,10 @@ class DynamicBang:
         self.gap   -= (self.slide[1]/60)*delta_t
         self.ampli = self.ampli - (self.decrease/30)*delta_t
 
-        # self.ampli = 0 va provoquer le del dans LINES
+        # self.ampli = 0 va provoquer le del dans BANGS
         if self.ampli < 0:
             self.ampli = 0
+            #os._exit(0)
 
         self.static_bang = StaticBang(  C,
                                         self.n,
@@ -262,10 +264,11 @@ class DynamicBang:
 
         return self.static_bang.lines
 
-    def bang(self, img):
+    def get_bang_img(self, img):
 
         lines = self.get_lines_at_t()
         img = self.static_bang.lines_to_circle(img)
+        print("get_bang_img dans DynamicBang")
         return img
 
 
@@ -274,21 +277,9 @@ class Bangs:
 
     comptage = -1
 
-    def __init__(self):
-        # La boucle d'affichage
-        self.loop = 1
-        # Calcul du fps
-        self.t_zero = time()
-        self.freq = 0
-        self.img = get_black_image()
+    def __init__(self, bang_list):
 
-        # Lancement d'une bang
-        self.bang_one_start()
-        # Lancement d'une autre bang
-        self.bang_two_start()
-
-        # Lancement de la fenêtre OpenCV
-        self.display()
+        self.bang_list = bang_list
 
     def update_freq(self):
         '''Calcul et affichage du fps.'''
@@ -300,93 +291,124 @@ class Bangs:
             print("Fréquence =", self.freq)
             self.freq = 0
 
-    def bang_one(self, numero):
-        global LINES
+    def create_bang(self, bang, numero):
+        '''Création d'un bang et gestion avec BANGS'''
 
-        n = 8
-        # list et non tuple
-        O = [200, 400]
-        start = 20
-        gap = 30
-        ampli = 50
-        pixel = 2
+        global BANGS
 
-        # Déplacement linéaire de O sur x,y pendant 1s
-        slide = 10, -20
-        # Diminution de l'amplitude par seconde
-        decrease = 200
+        n           = bang["n"]
+        O           = bang["O"]
+        start       = bang["start"]
+        gap         = bang["gap"]
+        ampli       = bang["ampli"]
+        pixel       = bang["pixel"]
+        slide       = bang["slide"]
+        decrease    = bang["decrease"]
 
         # Création d'une bang
-        LINES[numero] = DynamicBang(O, n, start, gap, ampli, pixel, slide, decrease)
-        LINES[numero].bang(numero)
+        # Lancé à BANGS[numero].t_zero
+        BANGS[numero] = DynamicBang(O, n, start, gap, ampli,
+                                    pixel, slide, decrease)
+        print("Lancement de DynamicBang pour", BANGS[numero], "numero", numero)
 
-    def bang_one_start(self):
-        Bangs.comptage += 1
-        numero = Bangs.comptage
-        t1 = threading.Thread(target=self.bang_one, args=(numero,))
-        t1.start()
+    def get_image(self):
+        '''Retourne l'image avec les cercles de tous les bangs en cours.'''
 
-    def bang_two(self, numero):
-        global LINES
-        n = 5
-        O = [1000, 300]
-        start = 20
-        gap = 30
-        ampli = 100
-        pixel = 1
+        global BANGS
 
-        # Déplacement linéaire de O sur x,y pendant 1s
-        slide = -200, 80
-        # Diminution de l'amplitude par seconde
-        decrease = 300
+        img = get_black_image()
+        key_list_to_remove = []
 
-        # Création d'une bang
-        LINES[numero] = DynamicBang(   O, n, start, gap, ampli, pixel,
-                                            slide, decrease)
-        LINES[numero].bang(numero)
+        for k, v in BANGS.items():
+            print("get_image pour ", k, v)
+            img = BANGS[k].get_bang_img(img)
 
-    def bang_two_start(self):
-        Bangs.comptage += 1
-        numero = Bangs.comptage
-        t2 = threading.Thread(target=self.bang_two, args=(numero,))
-        t2.start()
+            # Suppression des bangs finis si ampli=0
+            if v.ampli == 0:
+                print("BANGS[{}] à supprimer: {}".format(k, v))
+                key_list_to_remove.append(k)
 
-    def lines_to_circles(self, img, numero):
+        # Interdiction de supprimer une clé en cours de parcours
+        for i in key_list_to_remove:
+            print("Suppression du BANGS[{}]".format(i))
+            del BANGS[i]
 
-        global LINES
-        img = LINES[numero].bang(img)
         return img
+
+    def bangs_government(self):
+        '''A chaque nouvelle image, relit la liste des bangs pour lancer
+        les nouveaux bangs arrivés dans la liste self.bang_list
+        '''
+
+        global BANGS
+
+        bang_to_remove = []
+        for bg in self.bang_list:
+            # Comptage des bangs
+            Bangs.comptage += 1
+            numero = Bangs.comptage
+
+            # Création du bang avec DynamicBang
+            print("Création du bang numéro:", numero)
+            self.create_bang(bg, numero)
+
+            # Le bang est lancé, on ne veut plus le voir
+            bang_to_remove.append(bg)
+
+        # Supprression des bangs lancés
+        for b in bang_to_remove:
+            print("Suppression du bang:", b)
+            self.bang_list.remove(b)
+
+    def frame_update(self):
+        '''Maj à chaque frame'''
+
+        # Toujours cette emprise étatique et colbertienne
+        self.bangs_government()
+
+        # Recalcul de l'image à partir de 0 avec toutes les lines
+        img = self.get_image()
+
+        return img
+
+
+class Display(Bangs):
+    def __init__(self, bang_list):
+        super().__init__(bang_list)
+
+        # La boucle d'affichage
+        self.loop = 1
+        # Calcul du fps
+        self.t_zero = time()
+        self.freq = 0
+
+        # Lancement de la fenêtre OpenCV
+        self.display_thread()
 
     def display(self):
 
         while self.loop:
             self.update_freq()
 
-            # Recalcul de l'image avec toutes les lines
-            img = get_black_image()
-            key_list_to_remove = []
-            for k, v in LINES.items():
-
-                # Le coeur du calcul
-                img = self.lines_to_circles(img, k)
-
-                if v.ampli == 0:
-                    print("LINES[{}] à supprimer".format(k))
-                    key_list_to_remove.append(k)
-
-            # Interdiction de supprimer une clé en cours de parcours
-            for i in key_list_to_remove:
-                del LINES[i]
+            print("update img")
+            img = self.frame_update()
 
             # StaticDisplay an image
             cv2.imshow("Ceci n'est pas une image", img)
 
             # wait for esc key to exit
-            key = np.int16(cv2.waitKey(33))
+            key = np.int16(cv2.waitKey(5))
             if key == 27:  # Echap
                 break
 
         cv2.destroyAllWindows()
+
+    def display_thread(self):
+        '''Lancement du thread d'affichage OpenCV'''
+
+        print("Lancement du thread d'affichage OpenCV")
+        thread_d = threading.Thread(target=self.display)
+        thread_d.start()
 
 
 def t_s(a, b):
@@ -429,20 +451,63 @@ def get_line(A, B):
 
     return points
 
-def test():
-    print("Bangs")
-    Bangs()
+def test2():
 
-def p_kw(**kwargs):
-    print(kwargs)
+    bang_list = [{   "n":        4,
+                    "O":        [200, 400],
+                    "start":    20,
+                    "gap":      30,
+                    "ampli":    50,
+                    "pixel":    8,
+                    "slide":    (1, 2),
+                    "decrease": 20   },
+                {   "n":        3,
+                    "O":        [600, 800],
+                    "start":    50,
+                    "gap":      50,
+                    "ampli":    300,
+                    "pixel":    2,
+                    "slide":    (10, -20),
+                    "decrease": 300   },
+                {   "n":        2,
+                    "O":        [300, 300],
+                    "start":    50,
+                    "gap":      50,
+                    "ampli":    200,
+                    "pixel":    2,
+                    "slide":    (10, -20),
+                    "decrease": 400   }]
 
-def test1():
-    kwargs = {"kwargs_1": "Shark", "kwargs_2": 4.5, "kwargs_3": True}
-    p_kw(**kwargs)
+    liste_de_bang_initiale = [bang_list[0]]
+    bangs = Display(liste_de_bang_initiale)
 
-    print("Bangs")
-    Bangs()
+    print("Lancement de nouveau bang")
 
+    t = time()
+    ok, toto = 1, 1
+    fgfg = 1
+
+    while fgfg:
+        if time() - t > 25 and ok == 1:
+            print("BANGS", BANGS)
+            ok = 0
+            print("bang 2")
+            print(bangs.bang_list)
+            bangs.bang_list.append(bang_list[1])
+            print(bangs.bang_list)
+
+        if time() - t > 28 and toto == 1:
+            toto = 0
+            print("bang 3")
+            print(bangs.bang_list)
+            bangs.bang_list.append(bang_list[2])
+            print(bangs.bang_list)
+
+            fgfg = 0
+
+def test_global():
+    # pb avec display
+    pass
 
 if __name__ == "__main__":
-    test1()
+    test2()
