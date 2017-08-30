@@ -35,7 +35,7 @@ sudo apt-get install blender
 
 
 #### Installation OpenCV
-Il existe un tas de tuto qui explique comment compiler opencv, mais ces tutos sont des reprises d'un pov'gars qui a trouvé intelligent de le faire dans un virtualenv, même les chinois ont copié !
+Il existe un tas de tutos qui expliquent comment compiler opencv, mais ces tutos sont des reprises d'un pov'gars qui a trouvé intelligent de le faire dans un virtualenv, même les chinois ont copié !
 
 ##### Labomedia ne compile pas dans un virtualenv
 Réalisé sur debian jessie 8.3 et python 3.4 avec CmakeGUI Qt
@@ -49,25 +49,19 @@ sudo apt install python3-dev libpython3.4-dev python3-numpy
 python3.4-config --includes
 ~~~
 
-Dans CMakeLists.txt, pour éviter une erreur incompréhensible comme quoi il ne faut pas compiler dans le dossier de sources, j'ai commenté les lignes 10 à 15
+###### CUDA
+Dans Synaptic, installer python3-pycuda, cela va ajouter toutes les dépendances nécessaires !
+Il faut toujours être fainéant !
 
-Dans votre dossier projets:
 
-~~~text
-git clone https://github.com/opencv/opencv.git
-cd opencv
-mkdir build
-cd build
-~~~
-
-Utiliser CmakeGUI Qt
+###### Utiliser CmakeGUI Qt
 voir http://implab.ce.unipr.it/?p=21
 Définir:
 
 * Répertoire sources
 * Répertoire destination
 
-puis clic sur Generate
+puis clic sur Configure puis Generate
 Ouvrir un terminal dans le dossier des sources
 
 ~~~text
@@ -82,3 +76,15 @@ Quel film ?
 ### Merci à:
 
 * Labomedia
+
+#### Obsolète
+Dans CMakeLists.txt, pour éviter une erreur incompréhensible comme quoi il ne faut pas compiler dans le dossier de sources, j'ai commenté les lignes 10 à 15
+
+Dans votre dossier projets:
+
+~~~text
+git clone https://github.com/opencv/opencv.git
+cd opencv
+mkdir build
+cd build
+~~~

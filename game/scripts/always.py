@@ -148,10 +148,7 @@ def color_change(game, game_obj):
         print("Changement de couleur raté")
 
 def add_num(position, game_obj, game):
-    """Ajout d'un pixel où ?
-
-    dans la table et dans la scène.
-    """
+    """Ajout d'un pixel dans la table et dans la scène."""
 
     # empty définit la position où sera ajouté l'objet
     empty = game_obj["Empty"]

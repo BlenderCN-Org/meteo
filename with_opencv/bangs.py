@@ -104,14 +104,15 @@ class Wave(dict):
     lines = liste des tous les points de toutes les demi-sinusoïdales
     '''
 
-    def __init__(self, n, O, start, gap, ampli):
+    def __init__(self, O, n, start, gap, ampli):
         super().__init__()
 
-        self.n = n
         self.O = O
+        self.n = n
         self.start = start
         self.gap = gap
         self.ampli = ampli
+        self.forme = 0.8
 
         # Les points sommets de toutes les demi-sinusoïdales
         wave_points = self.get_wave_points()
@@ -126,7 +127,7 @@ class Wave(dict):
             self[i] = HalfWave( self.O,
                                 wave_points[i][0],
                                 wave_points[i][1],
-                                self.ampli*0.8**i,
+                                self.ampli*self.forme**i,
                                 sens )
 
     def get_wave_points(self):
@@ -183,8 +184,8 @@ class StaticBang:
         self.get_lines()
 
     def get_lines(self):
-        self.sinus = Wave(  self.n,
-                            self.O,
+        self.sinus = Wave(  self.O,
+                            self.n,
                             self. start,
                             self.gap,
                             self.ampli)
@@ -196,27 +197,30 @@ class StaticBang:
         centre = tuple(C)
         thickness = self.pixel
 
-        lt = cv2.LINE_AA  # antialiased line
+        lt = cv2.LINE_8  #AA  # antialiased line
 
         img = cv2.circle(img, centre, radius, color, thickness, lineType=lt)
         return img
 
     def lines_to_circle(self, img):
-        print("len(self.lines)", len(self.lines))
+        #print("len(self.lines)", len(self.lines))
         for point in self.lines:
             x = point[0]
             y = point[1]
             if self.ampli != 0:
-                color = abs((y - self.O[1])/(self.ampli*1.2)) * 255
-                color = int(min(color, 255))
+                color = abs(y - self.O[1])/(self.ampli) * 255
+                color = min(color, 255)
+                color = max(color, 0)
+                color = int(color)
             else:
                 color = 0
+
+            ##if color == 0:
+                ##color = 50
 
             if x % self.pixel == 0:
                 radius = int(x - self.O[0])
                 img = self.draw_opencv_circle(img, self.O, color, radius)
-
-        print("lines_to_circle dans StaticBang")
 
         return img
 
@@ -268,7 +272,7 @@ class DynamicBang:
 
         lines = self.get_lines_at_t()
         img = self.static_bang.lines_to_circle(img)
-        print("get_bang_img dans DynamicBang")
+        #print("get_bang_img dans DynamicBang")
         return img
 
 
@@ -320,7 +324,7 @@ class Bangs:
         key_list_to_remove = []
 
         for k, v in BANGS.items():
-            print("get_image pour ", k, v)
+            #print("get_image pour ", k, v)
             img = BANGS[k].get_bang_img(img)
 
             # Suppression des bangs finis si ampli=0
@@ -390,14 +394,13 @@ class Display(Bangs):
         while self.loop:
             self.update_freq()
 
-            print("update img")
+            #print("update img")
             img = self.frame_update()
 
-            # StaticDisplay an image
             cv2.imshow("Ceci n'est pas une image", img)
 
             # wait for esc key to exit
-            key = np.int16(cv2.waitKey(5))
+            key = np.int16(cv2.waitKey(1))
             if key == 27:  # Echap
                 break
 
@@ -451,32 +454,122 @@ def get_line(A, B):
 
     return points
 
-def test2():
+def test_halfwave():
+    print("Test de HalfWave")
+    O, start, gap, ampli, sens = [300, 500], 100, 500, 300, 1
+    hw = HalfWave(O, start, gap, ampli, sens)
+    img = get_black_image()
+    img = hw.draw_half_wave(img)
 
-    bang_list = [{   "n":        4,
+    toto = 1
+    t = time()
+    while toto:
+        cv2.imshow("Ceci n'est pas une image", img)
+
+        if time() - t > 1:
+            toto = 0
+
+        # wait for esc key to exit
+        key = np.int16(cv2.waitKey(5))
+        if key == 27:  # Echap
+            break
+
+    cv2.destroyAllWindows()
+
+def test_wave():
+    print("Test de Wave")
+    O, n, start, gap, ampli =[60, 500], 12, 30, 90, 250
+    w = Wave(O, n, start, gap, ampli)
+    img = get_black_image()
+    img = w.draw_waves(img)
+
+    toto = 1
+    t = time()
+    while toto:
+        cv2.imshow("Ceci n'est pas une image", img)
+
+        if time() - t > 1:
+            toto = 0
+
+        # wait for esc key to exit
+        key = np.int16(cv2.waitKey(5))
+        if key == 27:  # Echap
+            break
+
+    cv2.destroyAllWindows()
+
+def test_staticbang():
+    O, n, start, gap, ampli, pixel = [260, 500], 12, 30, 90, 250, 4
+
+    sb = StaticBang(O, n, start, gap, ampli, pixel)
+    img = get_black_image()
+    img = sb.lines_to_circle(img)
+
+    toto = 1
+    t = time()
+    while toto:
+        cv2.imshow("Ceci n'est pas une image", img)
+
+        if time() - t > 1:
+            toto = 0
+
+        # wait for esc key to exit
+        key = np.int16(cv2.waitKey(5))
+        if key == 27:  # Echap
+            break
+
+    cv2.destroyAllWindows()
+
+def test_dynamicbang():
+    print("Test de DynamicBang")
+    O, n, start, gap, ampli, pixel = [100, 200], 8, 50, 100, 300, 2
+    slide, decrease = (10, 10), 10
+    db = DynamicBang(O, n, start, gap, ampli, pixel, slide, decrease)
+
+    toto = 1
+    t = time()
+    while toto:
+        img = get_black_image()
+        img = db.get_bang_img(img)
+
+        cv2.imshow("Ceci n'est pas une image", img)
+
+        if time() - t > 2:
+            toto = 0
+
+        # wait for esc key to exit
+        key = np.int16(cv2.waitKey(66))
+        if key == 27:  # Echap
+            break
+
+    cv2.destroyAllWindows()
+
+def test_bangs():
+    print("Test de Bangs")
+    bang_list = [{   "n":        8,
                     "O":        [200, 400],
                     "start":    20,
                     "gap":      30,
-                    "ampli":    50,
+                    "ampli":    6,
                     "pixel":    8,
-                    "slide":    (1, 2),
-                    "decrease": 20   },
-                {   "n":        3,
+                    "slide":    (0.1, 1),
+                    "decrease": 10  },
+                {   "n":        5,
                     "O":        [600, 800],
                     "start":    50,
-                    "gap":      50,
-                    "ampli":    300,
-                    "pixel":    2,
-                    "slide":    (10, -20),
-                    "decrease": 300   },
-                {   "n":        2,
+                    "gap":      8,
+                    "ampli":    50,
+                    "pixel":    12,
+                    "slide":    (1, -1),
+                    "decrease": 10   },
+                {   "n":        3,
                     "O":        [300, 300],
                     "start":    50,
-                    "gap":      50,
-                    "ampli":    200,
-                    "pixel":    2,
-                    "slide":    (10, -20),
-                    "decrease": 400   }]
+                    "gap":      10,
+                    "ampli":    40,
+                    "pixel":    16,
+                    "slide":    (1, 0),
+                    "decrease": 20   }]
 
     liste_de_bang_initiale = [bang_list[0]]
     bangs = Display(liste_de_bang_initiale)
@@ -488,26 +581,28 @@ def test2():
     fgfg = 1
 
     while fgfg:
-        if time() - t > 25 and ok == 1:
+        if time() - t > 5 and ok == 1:
             print("BANGS", BANGS)
             ok = 0
             print("bang 2")
-            print(bangs.bang_list)
             bangs.bang_list.append(bang_list[1])
-            print(bangs.bang_list)
 
-        if time() - t > 28 and toto == 1:
+        if time() - t > 6 and toto == 1:
             toto = 0
             print("bang 3")
-            print(bangs.bang_list)
             bangs.bang_list.append(bang_list[2])
-            print(bangs.bang_list)
 
+        if time() - t > 20:
+            # fin du thread
+            bangs.loop = 0
             fgfg = 0
 
 def test_global():
-    # pb avec display
-    pass
+    ##test_halfwave()
+    ##test_wave()
+    ##test_staticbang()
+    ##test_dynamicbang()
+    test_bangs()
 
 if __name__ == "__main__":
-    test2()
+    test_global()
