@@ -28,8 +28,8 @@ test/
 meteo_files/
 gaps/
 analysed/
-with_opencv/test
-with_opencv/images
+opencv_circle/test
+opencv_circle/images
 *.html
 *.txt
 *.out
