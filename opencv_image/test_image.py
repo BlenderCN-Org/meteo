@@ -144,6 +144,7 @@ def bitwise_operations(img1, img2):
     return img1
 
 def test():
+    print("Test bitwise = bit à bit")
     img = load_image_gray(IMG)
     blk = get_black_image()
     display_image_bad(blk, img)
