@@ -37,6 +37,7 @@ ip du serveur sur ce multicast, lancement d'un socket TCP pour envoyer.
 import numpy as np
 from bge import logic as gl
 
+from scripts.meteo_tools import MeteoTools
 from scripts.labtools.labconfig import MyConfig
 
 def get_conf():
@@ -62,31 +63,35 @@ def set_gris_table():
 def variable_init():
 
     gl.display_init = 0
-
-    # Tableau dimension 2
-    #gl.pixel_array = np.array(np.zeros((gl.L, gl.H), dtype=object))
-    gl.pixel_array = np.empty((gl.L, gl.H), dtype=object)
-    print(np.shape(gl.pixel_array))
-
-    gl.suppr = 0
+    gl.histo_added = [0]*14
 
 def var_from_ini():
     """Les pixels sont carrées.
     TODO mettre dans ini
     """
 
-    gl.wide = 6 # largeur de l'écran  en quoi ???????????
+    gl.wide = 6 # largeur de l'écran en unité blender
     gl.L = 125  #125  # nombre de pixels en largeur
     gl.H = 70  #70  # nombre de pixels en hauteur
     gl.nb = gl.L * gl.H
     gl.largeur_pixel = gl.wide / gl.L
     gl.size = gl.largeur_pixel
+    # Je pense que ça décale un peu les pixels par rapport
+    # au bord inférieur gauche de la vue caméra
     gl.origin = (gl.size/2, gl.size/2)
+
+    # Le fichier meteo à lire à mettre dans scripts
+    gl.fichier = "gapsploitation_2.txt"
 
     print(  "gl.size", gl.size,
             "gl.nb", gl.nb,
             "gl.origin", gl.origin,
-            "gl.largeur_pixel", gl.largeur_pixel)
+            "gl.largeur_pixel", gl.largeur_pixel,
+            "Fichier meteo:", gl.fichier)
+
+def get_gapsploitation():
+    meteo_tools = MeteoTools()
+    gl.meteo_data = meteo_tools.get_json_file(gl.fichier)
 
 def main():
     """Lancé une seule fois à la 1ère frame au début du jeu par main_once."""
@@ -101,6 +106,8 @@ def main():
     variable_init()
 
     set_gris_table()
+
+    get_gapsploitation()
 
     # Pour les mondoshawan
     print("ok once.py")

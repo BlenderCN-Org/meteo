@@ -23,6 +23,10 @@
 #############################################################################
 
 '''
+
+################# Version avec list python #################
+
+
 A partir de la 61ème frame, lancé à chaque frame durant tout le jeu.
 
 ### Ajout d'objets ###

@@ -23,6 +23,10 @@
 #############################################################################
 
 """
+
+################# Version pour histogram.blend #################
+
+
 A partir de la 61ème frame, lancé à chaque frame durant tout le jeu.
 
 ### Ajout d'objets ###
@@ -43,7 +47,7 @@ addObject(object, other, time=0)
     Returns:    The newly added object.
 """
 
-import numpy as np
+
 from time import time
 from random import randint
 from bge import logic as gl
@@ -56,115 +60,52 @@ def main():
     game = get_obj.get_scene_with_name("Game")
     if game:
         game_obj = game.objects
-        #print(game_obj)
 
     if not gl.display_init:
         initial_addition(game, game_obj)
+        gl.display_init = 1
     else:
-        pass
-        ##grabe()
-        grabe_array()
-        ##suppr_some()
-        ##add_some()
-        ##color_change(game, game_obj, )
-        display_fps()
+        scale_histo()
+        print_fps()
 
-def display_fps():
+def scale_histo():
+    """Scale de la barre
+    en focntion de ce qui est lu dans gapsploitation_2.txt
+    """
+
+    for l in range(14):
+
+        sc = l/10
+        gl.histo_added[l].worldScale = (0.2, 0, sc)
+
+def print_fps():
     print(gl.getLogicTicRate())
 
 def initial_addition(scene, game_obj):
-    """Affichage initial des plans."""
+    """Affichage initial des plans pour avoir 14 barres verticales roses.
+    Le plan rose fait 1x1
+    largeur de -3 à 3 = 6
+    14 barres + 15 espaces = 29
+    6/29 = 0.2
+    hauteur de 0 à 3.4
+    """
 
     empty = game_obj["Empty"]
     scene = gl.getCurrentScene()
-    t0 = time()
 
-    gl.display_init = 1
+    for l in range(14):
+        # empty définit la position où sera ajouté l'objet
+        empty.worldPosition = ( 2.18 + 0.2*(2*l + 1),
+                                0,
+                                1.7)
 
-    for w in range(gl.L):
-        for h in range(gl.H):
-            # empty définit la position où sera ajouté l'objet
-            empty.worldPosition = ( gl.origin[0] + w * gl.size + 2,
-                                    0,
-                                    gl.origin[1] + h * gl.size)
+        # Les plans roses sont ajoutés
+        rose = "rose"
 
-            # Les plans sont ajoutés
-            # Les plans sont dans gl.gris_table, 0 = blanc, 10 = noir
-            # random entre 0 et 10
-            pixel = "gris" + str(randint(0, 10))
+        # Ajout dans la scène
+        obj_added = scene.addObject(rose, empty, 0)
+        obj_added.worldScale = (0.2, 0, 0.02)
 
-            # Ajout dans la scène
-            obj_added = scene.addObject(pixel, empty, 0)
-            obj_added.worldScale = (gl.size, 0, gl.size)
+        # Liste des objects ajoutés
+        gl.histo_added[l] = obj_added
 
-            # Ajout dans le tableau
-            #gl.pixel_table.append(obj_added)
-
-            # Set du array
-            gl.pixel_array[w, h] = obj_added
-
-    gl.display_init = 1
-    t1 = time()
-    t = t1 - t0
-    print("Nombre d'images", gl.L*gl.H)
-    print("Temps d'ajout", t)
-
-def grabe_array():
-    for w in range(gl.L):
-        for h in range(gl.H):
-            try:
-                gl.pixel_array[w, h].worldPosition[0] += 0.0005
-            except:
-                print("Array ajout raté")
-
-def grabe():
-    for pix in gl.pixel_table:
-        try:
-            pix.worldPosition[0] += 0.0005
-        except:
-            print("raté")
-
-def suppr_some():
-    try:
-        # suppr de l'objet blender
-        gl.pixel_table[0].endObject()
-
-        # suppr de l'item dans la liste
-        gl.pixel_table.pop(0)
-    except:
-        print("Suppression raté")
-
-def add_some():
-    pass
-
-def color_change(game, game_obj):
-    """Changement de couleur au hazard, pour une couleur au hazard."""
-    try:
-        lequel = randint(0, len(gl.pixel_table))
-        position = gl.pixel_table[lequel].worldPosition
-        suppr_num(lequel)
-        add_num(position, game_obj, game)
-    except:
-        print("Changement de couleur raté")
-
-def add_num(position, game_obj, game):
-    """Ajout d'un pixel dans la table et dans la scène."""
-
-    # empty définit la position où sera ajouté l'objet
-    empty = game_obj["Empty"]
-    empty.worldPosition = position
-    pixel = "gris" + str(randint(0, 10))
-
-    # Ajout
-    obj_added = game.addObject(pixel, empty, 0)
-    gl.pixel_table.append(obj_added)
-
-def suppr_num(num):
-    try:
-        # suppr de l'objet blender
-        gl.pixel_table[num].endObject()
-
-        # suppr de l'item dans la liste
-        gl.pixel_table.pop(num)
-    except:
-        print("raté")

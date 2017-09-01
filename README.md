@@ -30,11 +30,17 @@ Les prévisions pendant 14 jours de chaque jour créent un histogramme, les jour
 sudo apt-get install blender
 ~~~
 
-#### Twisted
+#### Installation de twisted pour python 3
 
+~~~text
+sudo pip3 install twisted
+~~~
 
 #### Beautifulsoup
 
+~~~text
+sudo apt-get install python3-bs4
+~~~
 
 #### Installation OpenCV
 Il existe un tas de tutos qui expliquent comment compiler opencv, mais ces tutos sont des reprises d'un pov'gars qui a trouvé intelligent de le faire dans un virtualenv, même les chinois ont copié !
@@ -88,14 +94,3 @@ Quel film ?
 
 * Labomedia
 
-#### Obsolète
-Dans CMakeLists.txt, pour éviter une erreur incompréhensible comme quoi il ne faut pas compiler dans le dossier de sources, j'ai commenté les lignes 10 à 15
-
-Dans votre dossier projets:
-
-~~~text
-git clone https://github.com/opencv/opencv.git
-cd opencv
-mkdir build
-cd build
-~~~
