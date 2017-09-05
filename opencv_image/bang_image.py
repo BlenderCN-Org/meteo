@@ -20,6 +20,8 @@ IMG = "bang_2.png"
 # RVB avec canal alpha
 #IMG = "bang_3.png"
 
+#cv2.namedWindow("window", cv2.WND_PROP_FULLSCREEN)
+
 LARG = 1200
 HAUT = 800
 
@@ -84,88 +86,6 @@ def scale_image(img, k):
 def get_black_image():
     return np.zeros((HAUT, LARG, 1), np.uint8)
 
-def superposition(background, foreground, decal):
-    """Superposition de foreground sur background,
-    foreground en gray sans alpha
-    decal = (a, b) tuple position du coin haut gauche
-    """
-
-    # Dimension de foreground
-    #rows_fg, cols_fg, channels_fg = foreground.shape
-    cols_fg, rows_fg = foreground.shape
-
-    a = decal[0]
-    b = decal[1]
-    print("\nSuperposition")
-    print("rows_fg:", rows_fg, "cols_fg:", cols_fg)
-    print("Décalage:", a, b)
-
-    # roi est la partie d'image du background où sera ajouté le foreground
-
-    l = cols_fg + a
-    h = rows_fg + b
-    print("l, h", l, h)
-
-    # Coupe de a, b et coupe de
-    #                row  col
-    #roi = background[b:h, a:l]
-    roi = background[a:l, b:h]
-
-    print("foreground.shape", foreground.shape)
-    print("roi.shape", roi.shape, "\n")
-
-    # Now create a mask of foreground and create its inverse mask also
-    #img2gray = cv2.cvtColor(foreground, cv2.COLOR_BGR2GRAY)
-    img2gray = foreground
-    ret, mask = cv2.threshold(img2gray, 10, 255, cv2.THRESH_BINARY)
-    mask_inv = cv2.bitwise_not(mask)
-
-    # Now black-out the area of foreground in roi
-    bg = cv2.bitwise_and(roi, roi, mask=mask_inv)
-
-    # Take only region of foreground
-    fg = cv2.bitwise_and(img2gray, img2gray, mask=mask)
-
-    # Put fg on bg
-    dst = cv2.add(bg, fg)
-
-    # Shape 2 pour dst, 3 pour background
-    #background[a:rows_fg+a, b:cols_fg+b, 0] = dst
-    background[b:rows_fg+b, a:cols_fg+a, 0] = dst
-
-    return background
-
-def display_image(wave):
-
-    print("Affichage des images superposées")
-
-    t_print = time()
-    freq = 0
-    background = get_black_image()
-
-    # Scale initial
-    wave = scale_image(wave, SCALE[0])
-
-    while "Pas d'appui sur Echap":
-        bg_img = background.copy()
-        # Scale à chaque frame
-        wave = scale_image(wave, SCALE[1])
-
-        img = superposition(bg_img, wave, (20,10))
-        # Affichage de l'image
-        cv2.imshow('bang', img)
-
-        # Fréquence
-        freq += 1
-        if time() - t_print > 1:
-            print("Fréquence =", int(freq))
-            t_print, freq = time(), 0
-
-        # Wait for esc key to exit
-        key = np.int16(cv2.waitKey(16))  # défini ma fréquence maxi ~50 fps
-        if key == 27:  # Echap
-            break
-
 def test_translation():
 
     wave = load_image_default(IMG)
@@ -175,13 +95,6 @@ def test_translation():
     cv2.imshow('img', img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-
-def test():
-    print("Superposition")
-
-    wave = load_image_default(IMG)
-
-    display_image(wave)
 
 def crop(img, vertex, c):
     """Coupe en vertex = A B C D
@@ -224,7 +137,6 @@ def test_crop():
         cv2.imshow('img', img)
         cv2.waitKey(0)
 
-
 def position_1(foreground, a, b):
     """ haut, gauche: a < 0 ; b < 0
     Origine en A
@@ -257,26 +169,6 @@ def position_2(foreground, a, b):
     img = crop_xs(img, a, 0)
 
     return img, decal
-
-##def position_3_4_5(foreground, a, b):
-    ##""" haut: LARG > a
-    ##Pas d'image: img = None
-    ##"""
-
-    ##print("Position 3 ou 4 ou 5")
-    ##decal = None
-    ##img = None
-    ##return img, decal
-
-##def position_6_7(foreground, a, b):
-    ##"""b > HAUT
-    ##Pas d'image: img = None
-    ##"""
-
-    ##print("Position 6 ou 7")
-    ##decal = None
-    ##img = None
-    ##return img, decal
 
 def position_8(foreground, a, b):
     """a < 0 ; 0 < b < LARG
@@ -333,52 +225,22 @@ def selection_position(foreground, a, b):
 
     return foreground, decal
 
-def test_position():
-    ##for d in [  (-200, -200),
-                ##(400, -200),
-                ##(1300, -200),
-                ##(1400, 500),
-                ##(1300, 900),
-                ##(1600, 1000),
-                ##(200, 1600),
-                ##(-100, 1500),
-                ##(-400, 200),
-                ##(600, 200),
-                ##(-200, 300),
-                ##(100, 80),
-                ##(80, 50),
-                ##(-500, 600)]:
-
-    for d in [(100, 100)]:
-        #print("d", d)
-        background = get_black_image()
-        foreground = load_image_gray(IMG)
-
-        foreground, decal = selection_position(foreground, d[0], d[1])
-        if decal:
-            img = superposition(background, foreground, decal)
-
-            cv2.imshow('Mix', img)
-
-            cv2.waitKey(0)
-
 def crop_xs(foreground, a, b):
     """Coupe ce qui dépasse du background à droite et en bas"""
 
-    x, y = foreground.shape
-    print("crop_xs foreground.shape", x, y, "décalage", a, b)
+    y, x = foreground.shape
+    print("Avant crop_xs foreground.shape", x, y, "décalage", a, b)
     if x + a > LARG:
         # Coupe à droite
         ca = x + a - LARG
         foreground = right_crop(foreground, ca)
-        print("Coupe à droite", ca, "reste", foreground.shape)
+        print("Coupe à droite de ", ca, ", reste", foreground.shape[1])
 
     if y + b > HAUT:
         # Coupe en bas
         cb = y + b - HAUT
-        print("foreground shape avant coupe", foreground.shape)
         foreground = down_crop(foreground, cb)
-        print("Coupe en bas", cb, "reste", foreground.shape)
+        print("Coupe en bas", cb, ", reste", foreground.shape[0])
 
     return foreground
 
@@ -392,11 +254,11 @@ def left_crop(img, c):
 
 def down_crop(img, c):
     c = abs(c)
-    return img[:, :-c]
+    return img[:-c, :]
 
 def right_crop(img, c):
     c = abs(c)
-    return img[:-c, :]
+    return img[:, :-c]
 
 def test_simple_crop(foreground):
     foreground = load_image_default(IMG)
@@ -407,6 +269,108 @@ def test_simple_crop(foreground):
     cv2.imshow('Mix', img)
     cv2.waitKey(0)
 
+def superposition(background, foreground, decal):
+    """Superposition de foreground sur background,
+    foreground en gray sans alpha
+    decal = (a, b) tuple position du coin haut gauche
+    """
+
+    # Dimension de foreground
+    rows_fg, cols_fg = foreground.shape
+
+    a = decal[0]
+    b = decal[1]
+    print("\nSuperposition")
+    print("rows_fg:", rows_fg, "cols_fg:", cols_fg, "Décalage:", a, b)
+
+    # roi est la partie d'image du background où sera ajouté le foreground
+
+    l = min(cols_fg + a, LARG)
+    h = min(rows_fg + b, HAUT)
+    print("l:", l, "h:", h)
+
+    # Coupe de a, b et coupe de
+    print("foreground.shape", foreground.shape)
+    roi = background[b:h, a:l]
+    print("roi.shape", roi.shape, "\n")
+
+    # Now create a mask of foreground and create its inverse mask also
+    #img2gray = cv2.cvtColor(foreground, cv2.COLOR_BGR2GRAY)
+    img2gray = foreground
+    ret, mask = cv2.threshold(img2gray, 10, 255, cv2.THRESH_BINARY)
+    mask_inv = cv2.bitwise_not(mask)
+    print("mask.shape", mask.shape)
+    # Now black-out the area of foreground in roi
+    bg = cv2.bitwise_and(roi, roi, mask=mask_inv)
+
+    # Take only region of foreground
+    fg = cv2.bitwise_and(img2gray, img2gray, mask=mask)
+
+    # Put fg on bg
+    dst = cv2.add(bg, fg)
+
+    # Shape 2 pour dst, 3 pour background
+    background[b:h, a:l, 0] = dst
+
+    return background
+
+def test_position():
+    d = (500, 600)
+    background = get_black_image()
+    foreground = load_image_gray(IMG)
+
+    foreground, decal = selection_position(foreground, d[0], d[1])
+
+    if decal:
+        print("dans test_position foreground.shape, decal", foreground.shape, decal)
+        img = superposition(background, foreground, decal)
+
+        cv2.imshow('Mix', img)
+
+        cv2.waitKey(0)
+
+def center_to_origin():
+    pass
+
+def display_image():
+
+    print("Affichage des images superposées")
+
+    t_print = time()
+    freq = 0
+    background = get_black_image()
+    wave = load_image_gray(IMG)
+
+    # Scale initial
+    wave = scale_image(wave, SCALE[0])
+
+    while "Pas d'appui sur Echap":
+        bg_img = background.copy()
+        # Scale à chaque frame
+        wave = scale_image(wave, SCALE[1])
+
+        try:
+            # Image finale
+            img = superposition(bg_img, wave, (20,10))
+            # Affichage de l'image
+            cv2.imshow('bang', img)
+
+            # Fréquence
+            freq += 1
+            if time() - t_print > 1:
+                print("Fréquence =", int(freq))
+                t_print, freq = time(), 0
+
+            # Wait for esc key to exit
+            key = np.int16(cv2.waitKey(16))  # défini ma fréquence maxi ~50 fps
+            if key == 27:  # Echap
+                break
+        except:
+            break
+
+
 if __name__ == "__main__":
-    test_position()
+    display_image()
+
+
 
