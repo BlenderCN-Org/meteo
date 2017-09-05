@@ -9,9 +9,10 @@ from time import time, sleep
 
 
 # Variable globale qu'il ne faut pas modifier
-IMG = "bang_2.png"
 LARG = 1200
 HAUT = 800
+# IMG est modifiée dans bitwise_operations
+IMG = "bang_2.png"
 
 
 def load_image_gray(image):
@@ -68,6 +69,7 @@ def display_image_bad(black, img):
     k = 0.95
     while "Pas d'appui sur Echap":
         img = bitwise_operations(black, img)
+        # Scale pour la prochaine boucle
         img = scale_image(img, k)
 
         # Affichage de l'image
@@ -85,17 +87,19 @@ def display_image_bad(black, img):
             break
 
 def display_image(img):
+    """img = image avec les ondes blanches"""
 
     t_print = time()
     freq = 0
 
     print("Affichage des images superposées")
 
-    k = 0.9
+    k = 0.95
     while "Pas d'appui sur Echap":
         blk = get_black_image()
-        img = bitwise_operations(blk, img)
+        # Scale de
         img = scale_image(img, k)
+        img = bitwise_operations(blk, img)
 
         # Affichage de l'image
         cv2.imshow('bang', img)
