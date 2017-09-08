@@ -24,7 +24,6 @@ target/
 # other
 .idea/
 _old/
-test/
 meteo_files/
 gaps/
 analysed/
