@@ -23,6 +23,7 @@ target/
 
 # other
 .idea/
+old/
 _old/
 meteo_files/
 gaps/
