@@ -1,0 +1,349 @@
+#!/usr/bin/env python3
+# -*- coding: UTF-8 -*-
+
+## explosion.py
+
+
+import os
+import random
+import operator
+import numpy as np
+import cv2
+from time import time, sleep
+
+LARG = 1200
+HAUT = 800
+
+def t_s(a, b):
+    return tuple(map(operator.add, a, b))
+
+def get_droite_coeff(x1, y1, x2, y2):
+
+    if x2 - x1 != 0:
+        a = (y2 - y1) / (x2 - x1)
+        b = y1 - a * x1
+    else:
+        a, b = None, None
+
+    return a, b
+
+def get_black_image():
+    return np.zeros((HAUT, LARG, 1), np.uint8)
+
+class Display:
+    '''Affichage d'une image avec OpenCV.'''
+
+    def __init__(self):
+        # Calcul du fps
+        self.t_zero = time()
+        self.freq = 0
+
+    def update_freq(self):
+        self.freq += 1
+
+        if time() - self.t_zero > 1:
+            self.t_zero = time()
+            print("Fréquence =", self.freq)
+            self.freq = 0
+
+    def display(self, img):
+        while True:
+            self.update_freq()
+
+            # Display an image
+            cv2.imshow("Ceci n'est pas une image", img)
+
+            # wait for esc key to exit
+            key = np.int16(cv2.waitKey(33))
+            if key == 27:  # Echap
+                break
+
+        cv2.destroyAllWindows()
+
+def draw_line(img, A, B):
+    '''Retourne l'image avec le dessin de la droite entre A et B.'''
+
+    a, b = get_droite_coeff(A[0], A[1], B[0], B[1])
+
+    for i in range(int(A[0]), int(B[0])):
+        x = i
+        y = int(a*x + b)
+        if 0 < x < LARG and 0 < y < HAUT:
+            img[y][x] = [255]
+
+    return img
+
+def get_line(A, B):
+    '''Retourne la liste des points de cette droite'''
+
+    a, b = get_droite_coeff(A[0], A[1], B[0], B[1])
+
+    points = []
+    for i in range(int(A[0]), int(B[0])):
+        x = i
+        y = int(a*x + b)
+        if 0 < x < LARG and 0 < y < HAUT:
+            points.append([x, y])
+
+    return points
+
+
+class HalfWave:
+    '''Une demi onde: O A B C'''
+
+    def __init__(self, O, start, gap, ampli, sens=0):
+        '''O est l'origine = tuple x, y
+        start = début de l'onde = OA
+        gap = décalage du point C = AC
+        ampli = amplitude de l'onde
+        sens = vers le haut ou vers le bas
+        draw = 1 pour réellement dessiner la courbe
+        '''
+
+        self.start = int(start)
+        self.gap = int(gap)
+        self.ampli = int(ampli)
+
+        if sens not in [0, 1]:
+            self.sens = 1
+        else:
+            self.sens = sens
+
+        # Tous les points devront être corrigés de O(Ox, Oy)
+        self.O = O
+
+        self.set_ABC()
+
+    def set_ABC(self):
+        '''Les points sont comptés à partir de O'''
+
+        self.A = (self.start, 0)
+
+        if self.sens:
+            self.B = (int(self.start + self.gap/2), - self.ampli)
+        else:
+            self.B = (int(self.start + self.gap/2), self.ampli)
+
+        self.C = (self.start + self.gap, 0)
+
+    def get_3_line(self):
+        '''Droite de A à B et de B à C'''
+
+        a = t_s(self.A, self.O)
+        b = t_s(self.B, self.O)
+        c = t_s(self.C, self.O)
+
+        # Droite de A à B
+        line1 = get_line(a, b)
+        # Droite de B à C
+        line2 = get_line(b, c)
+
+        # La liste des points des 2 lignes
+        line = line1 + line2
+
+        return line
+
+    def draw_half_wave(self, img):
+        '''Droite de A à B et de B à C'''
+
+        a = t_s(self.A, self.O)
+        b = t_s(self.B, self.O)
+        c = t_s(self.C, self.O)
+
+        # Droite de A à B
+        img= draw_line(img, a, b)
+        # Droite de B à C
+        img= draw_line(img, b, c)
+
+        return img
+
+
+class Wave(dict):
+    '''Onde de n demi-sinusoïdal static
+    self hérite de dict: attributs et méthodes
+    n maxi 10
+    Les points sont les sommets de chaque demi-sinusoïdale
+    line = liste des points d'une demi-sinusoïdales
+    lines = liste des tous les points de toutes les demi-sinusoïdales
+    '''
+
+    def __init__(self, n, O, start, gap, ampli, draw=0):
+        super().__init__()
+
+        self.n = n
+        self.O = O
+        self.start = start
+        self.gap = gap
+        self.ampli = ampli
+        self.draw = draw
+
+        # Les points sommets de toutes les demi-sinusoïdales
+        wave_points = self.get_wave_points()
+
+        for i in range(self.n):
+            if i % 2 == 0:
+                sens = 0
+            else:
+                sens = 1
+
+            # O, start, gap, ampli, sens=0
+            self[i] = HalfWave( self.O,
+                                wave_points[i][0],
+                                wave_points[i][1],
+                                self.ampli*0.8**i,
+                                sens )
+
+    def get_wave_points(self):
+        start = self.start
+        gap = self.gap
+
+        points = [(start, gap)]
+        for i in range(self.n-1):
+            toto = points[i][0] + points[i][1], gap*(1-0.1*(i+1))
+            points.append(toto)
+
+        return points
+
+    def get_lines(self):
+        '''Retourne l'image avec le dessin des points,
+        et crée la liste des points de toutes les courbes.'''
+
+        lines = []
+        for i in range(self.n):
+            line = self[i].get_3_line()
+            lines = lines + line
+
+        return lines
+
+    def draw_waves(self, img):
+        '''Retourne l'image avec le dessin des points,
+        et crée la liste des points de toutes les courbes.'''
+
+        for i in range(self.n):
+            img = self[i].draw_half_wave(img)
+
+        return img
+
+
+class StaticExplosion(Wave):
+    '''Chaque point de Wave devient un cercle de couleur de l'amplitude.'''
+
+    def __init__(self, pixel):
+        '''points = liste de point (x, y).'''
+
+        super().__init__(n, O, start, gap, ampli, draw)
+        self.O = O
+        self.points = points
+        self.ampli = ampli
+        self.pixel = pixel
+
+    def draw_opencv_circle(self, img, C, color, radius):
+
+        centre = C
+        thickness = self.pixel
+
+        lt = cv2.LINE_AA  # antialiased line
+
+        img = cv2.circle(   img,
+                            centre,
+                            radius,
+                            color,
+                            thickness,
+                            lineType = lt)
+        return img
+
+    def lines_to_circle(self, img):
+
+        for point in self.points:
+            x = point[0]
+            y = point[1]
+            color = abs((y - self.O[1])/self.ampli) * 255
+            color = int(min(color, 255))
+
+            if x % self.pixel == 0:
+                radius = int(x - self.O[0])
+                img = self.draw_opencv_circle(img, self.O, color, radius)
+
+        return img
+
+
+class DynamicExplosion:
+    pass
+    def wave_normal_life(self):
+        img = self.black.copy()
+        for i in range(len(self)):
+            img = wave.draw_waves(img)
+            img = points_to_cicle(img, wave.lines, O, ampli)
+
+        self.display(img)
+    def update_waves(self):
+        self.update_count()
+        self.create_one_wave()
+        self.wave_normal_life()
+
+def main():
+    '''Faire Echap dans la fenêtre OpenCV pour quitter chaque test'''
+
+    print("HalfWave_test")
+    HalfWave_test()
+
+    print("Wave_test")
+    Wave_test()
+
+    print("StaticExplosion_test")
+    StaticExplosion_test()
+
+    print("StaticExplosion_test")
+    DynamicExplosion_test()
+
+def HalfWave_test():
+    O = 50, 400
+    start = 100
+    gap = 100
+    ampli = 200
+    hw = HalfWave(O, start, gap, ampli, sens=0)
+    img = hw.draw_half_wave(get_black_image())
+    disp = Display()
+    disp.display(img)
+
+def Wave_test():
+    n = 10
+    O = 50, 400
+    start = 100
+    gap = 40
+    ampli = 200
+    w = Wave(n, O, start, gap, ampli)
+    img = w.draw_waves(get_black_image())
+    disp = Display()
+    disp.display(img)
+
+def StaticExplosion_test():
+    n = 8
+    O = 200, 400
+    start = 20
+    gap = 30
+    ampli = 50
+    draw = 1
+
+    #         n, O, start, gap, ampli, draw
+    w = Wave( 8, O, 10,    50,  ampli, draw)
+    points = w.get_lines()
+    ##img = w.draw_waves(get_black_image())
+    ##disp = Display()
+    ##disp.display(img)
+
+    pixel = 4
+    dw = StaticExplosion(O, points, ampli, pixel)
+
+    img = get_black_image()
+    img = dw.lines_to_circle(img)
+
+    Display().display(img)
+
+def DynamicExplosion_test():
+    pass
+
+
+
+if __name__ == "__main__":
+    main()
