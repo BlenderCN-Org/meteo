@@ -14,19 +14,11 @@ from random import randint
 # Gray sans alpha
 IMG = "bang_2.png"
 
-# Gray avec alpha
-#IMG = "bang_4.png"
-
-# RVB avec canal alpha
-#IMG = "bang_3.png"
-
-#cv2.namedWindow("window", cv2.WND_PROP_FULLSCREEN)
-
 LARG = 1200
 HAUT = 800
 
 # (scale de départ, scale à chaque frame)
-SCALE = (0.2, 1.08)
+SCALE = (0.1, 1.04)
 
 
 def load_image_default(image):
@@ -69,6 +61,11 @@ def scale_image(img, k):
 
 def get_black_image():
     return np.zeros((HAUT, LARG, 1), np.uint8)
+
+def get_blank_image():
+    img = np.zeros((HAUT, LARG, 4), np.uint8)
+    img[:] = (255, 255, 255, 0)
+    return  img
 
 def crop_xs(foreground, a, b):
     """Coupe ce qui dépasse du background à droite et en bas"""
@@ -187,22 +184,16 @@ def superposition(background, foreground, decal):
 
     a = decal[0]
     b = decal[1]
-    ##print("Superposition")
-    ##print("rows_fg:", rows_fg, "cols_fg:", cols_fg, "Décalage:", a, b)
     # roi est la partie d'image du background où sera ajouté le foreground
 
     l = cols_fg + a
     h = rows_fg + b
-    #print("l:", l, "h:", h)
 
     roi = background[b:h, a:l]
-    #print("roi.shape", roi.shape, "foreground.shape", foreground.shape)
 
     # Now create a mask of foreground and create its inverse mask also
-    #img2gray = cv2.cvtColor(foreground, cv2.COLOR_BGR2GRAY)
     img2gray = foreground
-    ret, mask = cv2.threshold(img2gray, 10, 255, cv2.THRESH_BINARY)
-    #print("mask.shape", mask.shape)
+    ret, mask = cv2.threshold(img2gray, 1, 255, cv2.THRESH_BINARY)
 
     mask_inv = cv2.bitwise_not(mask)
 
@@ -262,7 +253,7 @@ def display_image():
                 t_print, freq = time(), 0
 
             # Wait for esc key to exit
-            key = np.int16(cv2.waitKey(16))  # défini ma fréquence maxi ~50 fps
+            key = np.int16(cv2.waitKey(1))  # défini ma fréquence maxi ~50 fps
             if key == 27:  # Echap
                 break
 
