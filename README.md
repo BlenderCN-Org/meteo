@@ -90,6 +90,19 @@ Quel film ?
 
 « Bonne chance pour une prochaine fois, tas de nullards ! » Boum ! Envoyé ! Je suis bien l'invincible !
 
+### OpenCV
+cv2.imshow() n'affiche pas le canal alpha d'une image, matplotlib le fait mais avec un faible fps.
+
+OpenCV charge les images avec le canal alpha, certaines fonctions utilise le canal alpha,
+mais par exemple cv2.add() ne fait pas la somme avec les canaux alpha, il les ignore,
+d'où le cv2.threshold() de la doc, qui crée un masque, mais l'image collée dans le masque se fera
+sans prendre en compte le canal alpha.
+
+Un post du forum opencv propose:
+"Faîtes-vous même votre méthode !"
+
+Je vais faire simple, un seul bang à la fois.
+
 ### Merci à:
 
 * Labomedia

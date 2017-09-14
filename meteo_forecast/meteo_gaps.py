@@ -24,13 +24,18 @@
 #############################################################################
 '''
 
+'''
+2ème fichier à faire tourner
+Calcul les écarts
+'''
+
 import os
 from time import sleep
 import json
 from datetime import datetime
 from collections import OrderedDict
 from meteo_tools import MeteoTools
-from weather_types import weather_types
+from weather_types import weather_types, weather
 
 
 # Le json des analyses
@@ -42,7 +47,7 @@ GAPS = "output/gaps.txt"
 
 
 class MeteoGaps(MeteoTools):
-    """Trouve les gaps pour chaque jour/heure."""
+    '''Trouve les gaps pour chaque jour/heure.'''
 
     def __init__(self):
         super().__init__()
@@ -57,7 +62,7 @@ class MeteoGaps(MeteoTools):
         self.get_real_weathers()
 
     def get_all_days_in_forecasts(self):
-        """Uniquement les jours, sans doublon et sans heures."""
+        '''Uniquement les jours, sans doublon et sans heures.'''
 
         self.days = []
         for d, p in self.forecasts.items():
@@ -114,10 +119,10 @@ class MeteoGaps(MeteoTools):
         '''Retourne un entier correspondant au type de temps.'''
 
         try:
-            wt = weather_types[wt_str]
+            wt = weather[weather_types[wt_str]]
         except:
-            print("Vous devez ajouter {} à weather_types".format(p[3]))
-            print("avec un coefficient logique")
+            print("Vous devez ajouter {} à weather_types".format(wt_str))
+            print("et faire correspondre avec weather")
             os._exit(0)
         return wt
 
@@ -127,13 +132,13 @@ class MeteoGaps(MeteoTools):
         self.write_json_file(self.gaps, GAPS)
 
     def get_gaps(self):
-        """gaps du jour/heure
+        '''gaps du jour/heure
         {"2017_06_11_20": { "2017_06_11": [0,   0, 0],
                             "2017_06_12": [13, 31, 1],
                             etc ....
                             }
         }
-        """
+        '''
 
         self.gaps = {}
 

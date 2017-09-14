@@ -22,37 +22,37 @@ SCALE = (0.1, 1.04)
 
 
 def load_image_default(image):
-    """Chargement de l'image en gris.
+    '''Chargement de l'image en gris.
     cv2.IMREAD_COLOR : Loads a color image.
         Any transparency of image will be neglected. It is the default flag=1
     cv2.IMREAD_GRAYSCALE : Loads image in grayscale mode, flag=0
     cv2.IMREAD_UNCHANGED : Loads image as such including alpha channel flag=-1
-    """
+    '''
 
     return cv2.imread(image, 1)
 
 def load_image_gray(image):
-    """Chargement de l'image en gris.
+    '''Chargement de l'image en gris.
     cv2.IMREAD_COLOR : Loads a color image.
         Any transparency of image will be neglected. It is the default flag=1
     cv2.IMREAD_GRAYSCALE : Loads image in grayscale mode, flag=0
     cv2.IMREAD_UNCHANGED : Loads image as such including alpha channel flag=-1
-    """
+    '''
 
     return cv2.imread(image, 0)
 
 def load_image_RVB(image):
-    """Chargement de l'image en RVB
+    '''Chargement de l'image en RVB
     cv2.IMREAD_COLOR : Loads a color image.
         Any transparency of image will be neglected. It is the default flag=1
     cv2.IMREAD_GRAYSCALE : Loads image in grayscale mode, flag=0
     cv2.IMREAD_UNCHANGED : Loads image as such including alpha channel flag=-1
-    """
+    '''
 
     return cv2.imread(image, -1)
 
 def scale_image(img, k):
-    """Pour interpolation doc à https://goo.gl/9zNK7e"""
+    '''Pour interpolation doc à https://goo.gl/9zNK7e'''
     return cv2.resize(   img,
                         None,
                         fx=k,
@@ -68,7 +68,7 @@ def get_blank_image():
     return  img
 
 def crop_xs(foreground, a, b):
-    """Coupe ce qui dépasse du background à droite et en bas"""
+    '''Coupe ce qui dépasse du background à droite et en bas'''
 
     y, x = foreground.shape
     if x + a > LARG:
@@ -102,7 +102,7 @@ def right_crop(img, c):
     return img[:, :-c]
 
 def center_to_origin(img, C):
-    """C = cx, cy"""
+    '''C = cx, cy'''
 
     h, w = img.shape
     cx = C[0]
@@ -113,9 +113,9 @@ def center_to_origin(img, C):
     return a, b
 
 def position_1(foreground, a, b):
-    """ haut, gauche: a < 0 ; b < 0
+    ''' haut, gauche: a < 0 ; b < 0
     Origine en A
-    """
+    '''
 
     decal = 0, 0
 
@@ -129,9 +129,9 @@ def position_1(foreground, a, b):
     return img, decal
 
 def position_2(foreground, a, b):
-    """ haut: 0 < a < L ; b < 0
+    ''' haut: 0 < a < L ; b < 0
     Origine sur AB
-    """
+    '''
 
     decal = a, 0
 
@@ -144,7 +144,7 @@ def position_2(foreground, a, b):
     return img, decal
 
 def position_9(foreground, a, b):
-    """ 0 < a < L ; 0 < b < H soit dans background"""
+    ''' 0 < a < L ; 0 < b < H soit dans background'''
 
     decal = a, b
     # Coupe de l'excès
@@ -153,31 +153,27 @@ def position_9(foreground, a, b):
     return img, decal
 
 def selection_position(foreground, a, b):
-    """Retourne l'image foreground et  le décalage à appliquer.
+    '''Retourne l'image foreground et  le décalage à appliquer.
     En fonction de la position du point A d'application du foreground,
     position_x rogne foreground et calcul le décalage.
-    """
+    '''
 
     if a < 0 and b < 0:
         foreground, decal = position_1(foreground, a, b)
-        #print("\nPosition 1")
     elif 0 < a < LARG and b < 0:
         foreground, decal = position_2(foreground, a, b)
-        #print("\nPosition 2")
     elif 0 <= a <= LARG and 0 <= b <= HAUT:
         foreground, decal = position_9(foreground, a, b)
-        #print("\nPosition 9")
     else:
         foreground, decal = None, None
-        #print("\nPosition None")
 
     return foreground, decal
 
 def superposition(background, foreground, decal):
-    """Superposition de foreground sur background,
+    '''Superposition de foreground sur background,
     foreground en gray sans alpha
     decal = (a, b) tuple position du coin haut gauche
-    """
+    '''
 
     # Dimension de foreground
     rows_fg, cols_fg = foreground.shape

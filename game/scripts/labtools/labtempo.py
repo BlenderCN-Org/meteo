@@ -34,10 +34,10 @@ class TempoFactory():
 
     def __init__(self, periode=60):
         '''Paramètres:
-    période: la tempo est remise à zéro si periode atteind, -1 = infinite loop
-    pas: incrément de la tempo, par défaut=1, aucun intérêt de changer le pas
-    verrou: si verrou, pas d'incrémentation.
-    '''
+        période: la tempo est remise à zéro si periode atteind, -1 = infinite loop
+        pas: incrément de la tempo, par défaut=1, aucun intérêt de changer le pas
+        verrou: si verrou, pas d'incrémentation.
+        '''
 
         self.periode = periode
         self.verrou = False

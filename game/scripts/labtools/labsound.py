@@ -29,7 +29,6 @@ Class générique qui permet de gérer facilement le son
 gl est le GameLogic, get with : from bge import logic as gl
 
 Appel de cette classe où tous les sons sont dans une liste avec :
-    import aud
     soundList = ["boum", ...] avec les fichiers boum.ogg etc...
     Création de l'objet qui est un dictionnaire
         gl.sound = EasyAudio(soundList)

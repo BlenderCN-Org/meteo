@@ -23,4 +23,4 @@
 #/media/data/3D/projets/meteo/game
 cd game
 
-primusrun blenderplayer pixel.blend
+primusrun blenderplayer histogram.blend
