@@ -36,6 +36,14 @@ import locale
 
 class MeteoTools:
 
+    def get_day_gap(self, j1, j2):
+        '''Retourne le nombre de jours entre 2 date.'''
+
+        a = self.get_real_date_time(j1)
+        b = self.get_real_date_time(j2)
+
+        return (b - a).days
+
     def sort_dict(self, old_dict):
         '''Tri d'un dict par clé en date.'''
 

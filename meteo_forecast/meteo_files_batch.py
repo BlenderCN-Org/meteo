@@ -23,13 +23,16 @@
 #############################################################################
 
 
-'''
-1er fichier à faire tourner
-Analyse des fichiers téléchargés si pas encore analysés
-'''
 
-import os, sys
+# 1er fichier à faire tourner
+# Analyse les fichiers téléchargés si pas encore analysés
+# Le fichier analysed.txt doit exister et contenir au moins: []
+# Le fichier forecast.txt doit exister et contenir au moins: {}
+# TODO créer les fichiers en auto
+
+
 from json import dumps, loads
+from time import sleep
 from datetime import datetime
 from beautiful_meteo import BeautifulMeteo
 from beautiful_meteo_new import BeautifulMeteoNew
@@ -46,14 +49,11 @@ ANALYSED = "output/analysed.txt"
 # Le json des analyses, non trié
 FORECAST = "output/forecast.txt"
 
-# Le json des écarts
-GAPS = "output/gaps.txt"
-
 
 class AnalysedManagement(MeteoTools):
     '''Gestion des fichiers analysés, et pas encore analysés.
     analysed = liste des chemins relatifs
-    'meteo_files/2017_06/meteo_2017_06_11_22_05_42.html
+    meteo_files/2017_06/meteo_2017_06_11_22_05_42.html
     '''
 
     def __init__(self):
@@ -93,8 +93,7 @@ class AnalysedManagement(MeteoTools):
 
 
 class MeteoFilesBatch(AnalysedManagement):
-    '''Analyse avec BeautifulMeteoou New les fichiers pas encore analysés.
-    '''
+    '''Analyse avec BeautifulMeteo ou New les fichiers pas encore analysés.'''
 
     def __init__(self):
         super().__init__()
@@ -145,6 +144,8 @@ class MeteoFilesBatch(AnalysedManagement):
             if result:
                 self.forecast_to_dict(result)
 
+            sleep(0.1)
+
     def analyse_beautiful_meteo(self, fichier):
         '''Fichier: nom avec chemin absolu.'''
 
@@ -188,7 +189,8 @@ class MeteoFilesBatch(AnalysedManagement):
 
 
 def main():
-
+    print("\nJe suis le 1er script à excécuter")
+    print("Analyse des fichiers:\n")
     mfb = MeteoFilesBatch()
     mfb.get_unanalysed()
 
@@ -196,6 +198,9 @@ def main():
     mfb.record_analysed()
 
     mfb.record_forecast()
+
+    print("\nAnalyse des fichiers terminée")
+    print("Lancer ensuite le script gaps.py")
 
 
 if __name__ == "__main__":

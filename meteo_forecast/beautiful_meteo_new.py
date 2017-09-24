@@ -3,7 +3,7 @@
 
 ## beautiful_meteo_new.py
 
-'''
+
 #############################################################################
 # Copyright (C) Labomedia Juin 2017
 #
@@ -25,7 +25,10 @@
 
 
 ################  Valable à partir du 2017_08_02 à 00h00 ################
-'''
+
+# Les informaticiens se sont surpassés !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# c'est du python plus propre comme le fichier
+
 
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
@@ -183,8 +186,70 @@ class BeautifulMeteoNew:
 
 
 def test():
+    '''Vérif
+    sam 05
+        Éclaircies
+        16°C Minimale 25°C Maximale
+    dim 06
+        Ensoleillé
+        11°C Minimale 25°C Maximale
+    lun 07
+        Ensoleillé
+        12°C Minimale 27°C Maximale
+    mar 08
+        Rares averses
+        14°C Minimale 22°C Maximale
+    mer 09
+        Averses orageuses
+        12°C Minimale 20°C Maximale
+    jeu 10
+        Averses
+        11°C Minimale 22°C Maximale
+    ven 11
+        Éclaircies
+        11°C Minimale 24°C Maximale
+    sam 12
+        Ensoleillé
+        12°C Minimale 27°C Maximale
+    dim 13
+        Ensoleillé
+        14°C Minimale 30°C Maximale
+    lun 14
+        Ensoleillé
+        15°C Minimale 29°C Maximale
+    mar 15
+        Ensoleillé
+        15°C Minimale 28°C Maximale
+    mer 16
+        Ensoleillé
+        14°C Minimale 29°C Maximale
+    jeu 17
+        Ensoleillé
+        15°C Minimale 28°C Maximale
+    ven 18
+        Ensoleillé
+        15°C Minimale 27°C Maximale
+
+    {'2017_08_05_08': {
+    '2017_08_05': ['sam 05', 16, 25, 'Éclaircies'],
+    '2017_08_06': ['dim 06', 11, 25, 'Ensoleillé'],
+    '2017_08_07': ['lun 07', 12, 27, 'Ensoleillé'],
+    '2017_08_08': ['mar 08', 14, 22, 'Rares averses'],
+    '2017_08_09': ['mer 09', 12, 20, 'Averses orageuses'],
+    '2017_08_10': ['jeu 10', 11, 22, 'Averses'],
+    '2017_08_11': ['ven 11', 11, 24, 'Éclaircies'],
+    '2017_08_12': ['sam 12', 12, 27, 'Ensoleillé'],
+    '2017_08_13': ['dim 13', 14, 30, 'Ensoleillé'],
+    '2017_08_14': ['lun 14', 15, 29, 'Ensoleillé'],
+    '2017_08_15': ['mar 15', 15, 28, 'Ensoleillé'],
+    '2017_08_16': ['mer 16', 14, 29, 'Ensoleillé'],
+    '2017_08_17': ['jeu 17', 15, 28, 'Ensoleillé'],
+    '2017_08_18': ['ven 18', 15, 27, 'Ensoleillé']
+    }}
+    '''
+
     # Chemin relatif
-    file_path_name =  "meteo_files/2017_08/meteo_2017_08_05_18_18_14.html"
+    file_path_name =  "meteo_files/2017_08/meteo_2017_08_05_08_05_20.html"
 
     forecast = BeautifulMeteoNew(file_path_name)
     forecast.get_forecast()
