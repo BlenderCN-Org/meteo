@@ -52,10 +52,7 @@ def main():
 
     # Récupére
     get_conf()
-
-    # Récupére les
     var_from_ini()
-
     # Défini des variables
     variable_init()
 
@@ -78,6 +75,25 @@ def main():
 
     # Pour les mondoshawan
     print("Excécution de once.py terminée")
+
+def var_from_ini():
+    '''Les pixels sont carrées.'''
+
+    # TODO mettre dans ini
+    gl.wide = 6 # largeur de l'écran en unité blender
+    gl.L = 125  #125  # nombre de pixels en largeur
+    gl.H = 70  #70  # nombre de pixels en hauteur
+    gl.nb = gl.L * gl.H
+    gl.largeur_pixel = gl.wide / gl.L
+    gl.size = gl.largeur_pixel
+    # Je pense que ça décale un peu les pixels par rapport
+    # au bord inférieur gauche de la vue caméra
+    gl.origin = (gl.size/2, gl.size/2)
+
+    '''print(  "gl.size", gl.size,
+            ##"gl.nb", gl.nb,
+            ##"gl.origin", gl.origin,
+            ##"gl.largeur_pixel", gl.largeur_pixel)'''
 
 def set_chronologic():
     '''Crée un dict gl.chronologic
@@ -113,7 +129,7 @@ def set_chronologic():
             gl.chronologic[cle].append(None)
 
         cle += 1
-
+    #print(gl.chronologic)
 
 def get_hour_gap(current_day, day_hour):
     '''Retourne le nombre d'heures (int) entre jour courant à 23h et une
@@ -162,10 +178,9 @@ def variable_init():
     gl.histo_maxi = [0]*gl.num
     gl.histo_temps = [0]*gl.num
 
-    lenteur = gl.conf["rythm"]["lenteur"]
     gl.time = gl.conf["rythm"]["time"]
     # Nombre de frame pour affichage des prévisions d'un jour
-    gl.day_frame = gl.time * lenteur
+    gl.day_frame = gl.time
 
     # Dict des plages des mini, maxi, temps pour un jour à afficher
     #                        valeur haute, valeur basse
@@ -182,25 +197,6 @@ def set_tempo():
     gl.tempoDict = Tempo(tempo_liste)
     gl.tempoDict["day"].lock()
     gl.tempoDict["print"].lock()
-
-def var_from_ini():
-    '''Les pixels sont carrées.'''
-
-    # TODO mettre dans ini
-    gl.wide = 6 # largeur de l'écran en unité blender
-    gl.L = 125  #125  # nombre de pixels en largeur
-    gl.H = 70  #70  # nombre de pixels en hauteur
-    gl.nb = gl.L * gl.H
-    gl.largeur_pixel = gl.wide / gl.L
-    gl.size = gl.largeur_pixel
-    # Je pense que ça décale un peu les pixels par rapport
-    # au bord inférieur gauche de la vue caméra
-    gl.origin = (gl.size/2, gl.size/2)
-
-    '''print(  "gl.size", gl.size,
-            ##"gl.nb", gl.nb,
-            ##"gl.origin", gl.origin,
-            ##"gl.largeur_pixel", gl.largeur_pixel)'''
 
 def get_gaps_file():
     gl.meteo_tools = MeteoTools()

@@ -22,14 +22,12 @@
 #
 #############################################################################
 
-'''
-
 ################# Version pour histogram.blend #################
 
-
+'''
 A partir de la 61ème frame, lancé à chaque frame durant tout le jeu.
 
-### Ajout d'objets ###
+Ajout d'objets
 Ne marche qu'avec une seule scène, qui sera la scène courante.
 L'object ajouté est simplement défini par son nom, pas besoin de récupérer
 l'objet lui-même.
@@ -67,7 +65,7 @@ def main():
 
     # Init ["always"] = 0 pour once.py
     if gl.tempoDict["always"].tempo == 1:
-        print("Initialisation\n")
+        print("Initialisation")
 
         # Reset pour la suite
         gl.tempoDict["day"].unlock()
@@ -75,6 +73,7 @@ def main():
 
         # Traits verticaux du histo avec date
         traits_display(game_obj)
+        print("Initialisation ok\n")
 
     # ensuite toujours à partir de 1
     else:
@@ -89,11 +88,11 @@ def main():
                     # Maj
                     pretty_date_display(game_obj)
                     set_spread(game_obj)
-                    update_number_between_trait(game_obj)
+                    #update_number_between_trait(game_obj)
                     update_chronologic_histo(game_obj)
 
 def update_chronologic_histo(game_obj):
-    '''Affichge de la temp maxi positionné en horizontal par rapport
+    '''Affichge des temp mini et maxi positionné en horizontal par rapport
     à un point fixe à droite, le jour affiché=current_day à 23h.
     '''
 
@@ -104,49 +103,42 @@ def update_chronologic_histo(game_obj):
     datas = gl.chronologic[gl.day_number]
     print("Nombre de barres soit nombre d'écart pour ce jour", len(datas))
 
+
     for val in datas:
         if val:
+            ## Mini
+            Z = -0.90
             X = 0.01666 * val[0] + 33.0
             X = int(100*X)/100
             # Ajout
-            empty.worldPosition = (X, 0, 0)
-            obj_added = scene.addObject("rose", empty, gl.day_frame - 30)
+            empty.worldPosition = (X, 0, Z)
+            obj_added = scene.addObject("rose", empty, gl.day_frame - 10)
 
             # Scale
-            try:
+            if val[2][1]:
+                sz = val[2][0]/10
+                if -0.001 < sz < 0.001:
+                    sz = 0.01
+                obj_added.worldScale = (0.02, 0, sz)
+            else:
+                obj_added.worldScale = (0.02, 0, 0)
+
+            ## Maxi
+            Z = 0.52
+            X = 0.01666 * val[0] + 33.0
+            X = int(100*X)/100
+            # Ajout
+            empty.worldPosition = (X, 0, Z)
+            obj_added = scene.addObject("rose", empty, gl.day_frame - 10)
+
+            # Scale
+            if val[2][1]:
                 sz = val[2][1]/10
                 if -0.001 < sz < 0.001:
                     sz = 0.01
                 obj_added.worldScale = (0.02, 0, sz)
-            except:
+            else:
                 obj_added.worldScale = (0.02, 0, 0)
-
-def update_number_between_trait(game_obj):
-    # pour ajout des objets
-    empty = game_obj["Empty"]
-    scene = gl.getCurrentScene()
-
-    # la date entre les traits
-    for i in range(14):
-        X = 0.425*i + 27.1
-        empty.worldPosition = (X, 0, -1.4)
-
-        try: # TODO à revoir
-            obj_added = scene.addObject("jour", empty, gl.day_frame - 30)
-            # Rotation sur x de 90°
-            obj_added.applyRotation((90, 0, 0), 0)
-            obj_added.resolution = 32
-
-            # Text
-            j = gl.jour.split()
-            d = 0
-            if len(j) > 1:
-                d = int(j[1]) - 13 + i
-
-            obj_added["Text"] = str(d)
-            #print("Ajout texte ok")
-        except:
-            pass
 
 def traits_display(game_obj):
     # pour ajout des objets
@@ -207,7 +199,6 @@ def pretty_date_display(game_obj):
 
         # Affichage du jour en cours
         gl.jour = pretty_date(gl.current_day)
-        game_obj["day"]["Text"] = gl.jour
         game_obj["day.001"]["Text"] = pretty_date(gl.current_day)
 
 def set_spread(game_obj):
@@ -238,7 +229,7 @@ def set_spread(game_obj):
         spread[2][0] = temps[0]
         spread[2][1] = temps[-1]
     except:
-        print("Erreur spread")
+        print("Spread est None")
         spread[0][0] = 0
         spread[0][1] = 0
         spread[1][0] = 0
@@ -246,9 +237,11 @@ def set_spread(game_obj):
         spread[2][0] = 0
         spread[2][1] = 0
 
-        game_obj["maxi mini.001"]["Text"] = spread[1][0]
-        game_obj["maxi maxi.001"]["Text"] = spread[1][1]
+    game_obj["mini mini"]["Text"] = spread[0][0]
+    game_obj["mini maxi"]["Text"] = spread[0][1]
 
+    game_obj["maxi mini"]["Text"] = spread[1][0]
+    game_obj["maxi maxi"]["Text"] = spread[1][1]
 
 def keys():
 

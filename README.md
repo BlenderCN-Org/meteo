@@ -1,5 +1,5 @@
-# Bangs de météo
-## Plus les prévisions météo sont mauvaises, plus il y aura de bangs.
+## Bangs de météo
+#### Plus les prévisions météo sont mauvaises, plus il y aura de bangs.
 
 ## C'est pas fini !
 
@@ -20,8 +20,12 @@ Les mauvaises prévisions vont faire des bangs dans une fenêtre OpenCV.
 Les prévisions pendant 14 jours de chaque jour créent un histogramme, les jours défilent automatiquement.
 
 ### Testé sur
-* Debian Jessie 8.3 avec OpenCV 3.3.0-rc en python 3.4
+* Debian Jessie 8.3
 
+Avec:
+* python 3.4
+* OpenCV 3.3.0-rc
+* Blender 2.72
 
 ### Installation
 #### Blender
