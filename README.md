@@ -21,7 +21,6 @@ Les prévisions pendant 14 jours de chaque jour créent un histogramme, les jour
 
 ### Testé sur
 * Debian Jessie 8.3
-
 Avec:
 * python 3.4
 * OpenCV 3.3.0-rc
@@ -32,12 +31,6 @@ Avec:
 
 ~~~text
 sudo apt-get install blender
-~~~
-
-#### Installation de twisted pour python 3
-
-~~~text
-sudo pip3 install twisted
 ~~~
 
 #### Beautifulsoup
@@ -67,17 +60,11 @@ Récupération des sources:
 git clone https://github.com/opencv/opencv.git
 ~~~
 
-###### CUDA
-Dans Synaptic, installer python3-pycuda, cela va ajouter toutes les dépendances nécessaires !
-Il faut toujours être fainéant !
-
-
 ###### Utiliser CmakeGUI Qt
 
 voir http://implab.ce.unipr.it/?p=21
 
 Définir:
-
 * Répertoire sources
 * Répertoire destination
 
