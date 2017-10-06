@@ -53,11 +53,11 @@ from scripts.labtools import labgetobject as get_obj
 from datetime import timedelta
 
 def main():
+    # Maj de toutes les tempos
+    gl.tempoDict.update()
+
     # Maj entrée clavier
     keys()
-
-    if not gl.pause:
-        gl.tempoDict.update()
 
     game = get_obj.get_scene_with_name("Game")
     if game:
@@ -77,19 +77,28 @@ def main():
 
     # ensuite toujours à partir de 1
     else:
-        if not gl.pause:
-            if gl.tempoDict["day"].tempo == 0:
-                set_resolution_visible(game_obj)
+        if gl.tempoDict["day"].tempo == 0:
+            # Maj de gl.day_number
+            set_day_number()
 
-                # Maj de gl.day_number
-                set_day_number()
+            # Pour text
+            set_resolution_visible(game_obj)
 
-                if not gl.restart:
-                    # Maj
-                    pretty_date_display(game_obj)
-                    set_spread(game_obj)
-                    #update_number_between_trait(game_obj)
-                    update_chronologic_histo(game_obj)
+            if not gl.restart:
+                pretty_date_display(game_obj)
+
+                update_chronologic_histo(game_obj)
+                set_spread(game_obj)
+
+                play_note()
+
+def play_note():
+    note = gl.note
+    #print(note)
+    note = int(note*36/30)
+    if 0 <= note < 36:
+        note = str(note)
+        gl.sound[note].play()
 
 def update_chronologic_histo(game_obj):
     '''Affichge des temp mini et maxi positionné en horizontal par rapport
@@ -100,45 +109,40 @@ def update_chronologic_histo(game_obj):
     empty = game_obj["Empty"]
     scene = gl.getCurrentScene()
 
+    # data du jour courant
     datas = gl.chronologic[gl.day_number]
-    print("Nombre de barres soit nombre d'écart pour ce jour", len(datas))
 
+    life =  gl.time - 15
 
     for val in datas:
         if val:
-            ## Mini
+            # Ajout des minis
             Z = -0.90
             X = 0.01666 * val[0] + 33.0
-            X = int(100*X)/100
-            # Ajout
-            empty.worldPosition = (X, 0, Z)
-            obj_added = scene.addObject("rose", empty, gl.day_frame - 10)
+            indice = 0
+            add_rose(val, empty, scene, X, Z, life, indice)
 
-            # Scale
-            if val[2][1]:
-                sz = val[2][0]/10
-                if -0.001 < sz < 0.001:
-                    sz = 0.01
-                obj_added.worldScale = (0.02, 0, sz)
-            else:
-                obj_added.worldScale = (0.02, 0, 0)
-
-            ## Maxi
+            # Ajout des maxis
             Z = 0.52
             X = 0.01666 * val[0] + 33.0
-            X = int(100*X)/100
-            # Ajout
-            empty.worldPosition = (X, 0, Z)
-            obj_added = scene.addObject("rose", empty, gl.day_frame - 10)
+            indice = 1
+            add_rose(val, empty, scene, X, Z, life, indice)
 
-            # Scale
-            if val[2][1]:
-                sz = val[2][1]/10
-                if -0.001 < sz < 0.001:
-                    sz = 0.01
-                obj_added.worldScale = (0.02, 0, sz)
-            else:
-                obj_added.worldScale = (0.02, 0, 0)
+def add_rose(val, empty, scene, X, Z, life, indice):
+    '''Ajout des minis ou des maxis'''
+
+    empty.worldPosition = (X, 0, Z)
+    obj_added = scene.addObject("rose", empty, life)
+
+    larg = 0.02
+
+    if val[2][indice]:
+        sz = val[2][indice]/10
+        if -0.001 < sz < 0.001:
+            sz = 0.006
+        obj_added.worldScale = (larg, 0, sz)
+    else:
+        obj_added.worldScale = (larg, 0, 0.006)
 
 def traits_display(game_obj):
     # pour ajout des objets
@@ -158,11 +162,12 @@ def set_day_number():
     pour histogramm dynamic.
     '''
 
-    # Bidouille pour partir à gl.day_number de once.py
+    # Bidouille pour partir à and de once.py
     if gl.tempoDict["always"].tempo == 1:
         gl.day_number -= 1
 
-    gl.day_number += 1
+    if not gl.manual:
+        gl.day_number += 1
 
     if gl.day_number < len(gl.days):
         print("\nNuméro du jour en cours =", gl.day_number)
@@ -212,8 +217,8 @@ def set_spread(game_obj):
         for val in gl.chronologic[gl.day_number]:
             if val:
                 # k = int, v = [None] ou [(-161, '2017_09_16_06', [-1, -2, -2]), ....
-                mini.append(val[2][0])
-                maxi.append(val[2][1])
+                mini.append( val[2][0])
+                maxi.append( val[2][1])
                 temps.append(val[2][2])
 
     try:
@@ -224,6 +229,7 @@ def set_spread(game_obj):
         maxi.sort()
         spread[1][0] = maxi[0]
         spread[1][1] = maxi[-1]
+        #print(maxi)
 
         temps.sort()
         spread[2][0] = temps[0]
@@ -237,53 +243,72 @@ def set_spread(game_obj):
         spread[2][0] = 0
         spread[2][1] = 0
 
+    #print(spread[1][0], spread[1][1])
     game_obj["mini mini"]["Text"] = spread[0][0]
     game_obj["mini maxi"]["Text"] = spread[0][1]
 
     game_obj["maxi mini"]["Text"] = spread[1][0]
     game_obj["maxi maxi"]["Text"] = spread[1][1]
 
+    gl.note = abs(spread[0][1]) + abs(spread[1][1]) + abs(spread[2][1]) + abs(spread[1][1])
+
 def keys():
 
     if gl.keyboard.events[events.SPACEKEY] == gl.KX_INPUT_JUST_ACTIVATED:
         # Space pour faire pause
-        if gl.pause == 0:
-            gl.pause = 1
+        if gl.manual == 0:
+            gl.manual = 1
         else:
-            gl.pause = 0
+            gl.manual = 0
         sleep(0.1)
 
     if gl.keyboard.events[events.UPARROWKEY] == gl.KX_INPUT_JUST_ACTIVATED:
-        ##print("day_number", gl.day_number)
-        ### UP pour avancer dans les jours
-        ##gl.day_number += 1
-        print("day_number", gl.day_number)
+        # UP pour avancer dans les jours
+        gl.day_number += 1
+
+        if gl.day_number >= len(gl.days):
+            gl.day_number = 0
+
+        print("day number", gl.day_number)
+
         # Reset
         gl.tempoDict["day"].tempo = -1
         sleep(0.1)
 
     if gl.keyboard.events[events.DOWNARROWKEY] == gl.KX_INPUT_JUST_ACTIVATED:
         # DOWN pour reculer dans les jours
-        gl.day_number -= 2
-        if gl.day_number < 0: gl.day_number = 0
-        print("day_number", gl.day_number)
+        gl.day_number -= 1
+
+        if gl.day_number < 0:
+            gl.day_number = 0
+
+        print("day number", gl.day_number)
+
         # Reset
         gl.tempoDict["day"].tempo = -1
         sleep(0.3)
 
     if gl.keyboard.events[events.LEFTARROWKEY] == gl.KX_INPUT_JUST_ACTIVATED:
-        # LEFT pour ralentir
-        gl.day_frame += gl.time
+        # DOWN pour reculer dans les jours
+        gl.day_number -= 10
+
+        if gl.day_number < 0:
+            gl.day_number = 0
+
+        print("day number", gl.day_number)
+
         gl.tempoDict["day"].periode = gl.day_frame
         gl.tempoDict["day"].tempo = -1
 
     if gl.keyboard.events[events.RIGHTARROWKEY] == gl.KX_INPUT_JUST_ACTIVATED:
-        # RIGHT pour accélérer
-        gl.day_frame -= gl.time
+        # DOWN pour reculer dans les jours
+        gl.day_number += 10
+
+        if gl.day_number < 0:
+            gl.day_number = 0
+
+        print("day number", gl.day_number)
+
         if gl.day_frame < 0: gl.day_frame = 0
         gl.tempoDict["day"].periode = gl.day_frame
         gl.tempoDict["day"].tempo = -1
-
-def print_fps():
-    if gl.tempoDict["print"].tempo == 0:
-        print(gl.getLogicTicRate())

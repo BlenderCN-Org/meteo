@@ -40,7 +40,7 @@ sudo apt-get install python3-bs4
 ~~~
 
 #### Installation OpenCV
-Il existe un tas de tutos qui expliquent comment compiler opencv, mais ces tutos sont des reprises d'un pov'gars qui a trouvé intelligent de le faire dans un virtualenv, même les chinois ont copié !
+Il existe un tas de tutos qui expliquent comment compiler opencv, mais ces tutos sont des reprises d'un pov'gars qui a trouvé intelligent de le faire dans un virtualenv, bien sûr les chinois ont copié !
 
 ##### Labomedia ne compile pas dans un virtualenv
 Réalisé sur debian jessie 8.3 et python 3.4 avec CmakeGUI Qt

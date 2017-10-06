@@ -22,11 +22,11 @@
 #
 #############################################################################
 
-'''
-2ème fichier à faire tourner
-Calcul les écarts
-Le fichier gaps.txt doit exister et contenir au moins: {}
-'''
+
+# 2ème fichier à faire tourner
+# Calcul les écarts
+# Le fichier gaps.txt doit exister et contenir au moins: {}
+
 
 import os
 from time import sleep
@@ -270,7 +270,7 @@ def main():
     sleep(1)
     print("Pour une sortie bavarde, changer pour mg.debug = 1")
     print("Aggrandisser la fenêtre du terminal")
-    print("2ème scripts à excécuter\n")
+    print("2ème scripts et dernier à excécuter\n")
 
     mg = MeteoGaps()
 

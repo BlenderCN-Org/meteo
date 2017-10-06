@@ -52,7 +52,7 @@ def main():
 
     # Récupére
     get_conf()
-    var_from_ini()
+    var_from_conf()
     # Défini des variables
     variable_init()
 
@@ -69,6 +69,8 @@ def main():
 
     # Crée le dict ordonné gl.chronologic
     set_chronologic()
+    get_one_day_gap()
+    get_seven_days_gap()
 
     # Audio
     audio_init()
@@ -76,24 +78,12 @@ def main():
     # Pour les mondoshawan
     print("Excécution de once.py terminée")
 
-def var_from_ini():
-    '''Les pixels sont carrées.'''
+def var_from_conf():
+    gl.control = gl.conf["test"]["control"]
 
-    # TODO mettre dans ini
-    gl.wide = 6 # largeur de l'écran en unité blender
-    gl.L = 125  #125  # nombre de pixels en largeur
-    gl.H = 70  #70  # nombre de pixels en hauteur
-    gl.nb = gl.L * gl.H
-    gl.largeur_pixel = gl.wide / gl.L
-    gl.size = gl.largeur_pixel
-    # Je pense que ça décale un peu les pixels par rapport
-    # au bord inférieur gauche de la vue caméra
-    gl.origin = (gl.size/2, gl.size/2)
-
-    '''print(  "gl.size", gl.size,
-            ##"gl.nb", gl.nb,
-            ##"gl.origin", gl.origin,
-            ##"gl.largeur_pixel", gl.largeur_pixel)'''
+    gl.time = gl.conf["rythm"]["time"]
+    # Nombre de frame pour affichage des prévisions d'un jour
+    gl.day_frame = gl.time
 
 def set_chronologic():
     '''Crée un dict gl.chronologic
@@ -103,8 +93,13 @@ def set_chronologic():
     valeur = dict non ordonné, les barres de l'histogramme ne sont pas créées
     par ordre chronologique, seul l'affichage global compte !
 
-    gl.chronologic[1] =
-    [(-9, '2017_06_12_14', [-1, 0, 0]), (-6, '2017_06_12_17', [-1, 0, 0]), (-20, '2017_06_12_03', [0, 1, 0]), (0, '2017_06_12_23', [-1, -1, 0]), (-11, '2017_06_12_12', [-1, 0, 0]), (-25, '2017_06_11_22', [0, 1, 0]), (-17, '2017_06_12_06', [0, 0, 0]), (-26, '2017_06_11_21', [0, 1, 0]), (-22, '2017_06_12_01', [0, 1, 0]), (-2, '2017_06_12_21', [-1, -1, 0]), (-3, '2017_06_12_20', [-1, -1, 0]), (-29, '2017_06_11_18', [0, 1, 0]), (-19, '2017_06_12_04', [0, 1, 0]), (-5, '2017_06_12_18', [-1, -1, 0]), (-28, '2017_06_11_19', [0, 1, 0]), (-23, '2017_06_12_00', [0, 1, 0]), (-21, '2017_06_12_02', [0, 1, 0]), (-16, '2017_06_12_07', [0, 1, 0]), (-18, '2017_06_12_05', [0, 1, 0]), (-1, '2017_06_12_22', [-1, -1, 0]), (-4, '2017_06_12_19', [-1, -1, 0]), (-24, '2017_06_11_23', [0, 1, 0]), (-13, '2017_06_12_10', [-1, 0, 0]), (-8, '2017_06_12_15', [-1, 0, 0]), (-27, '2017_06_11_20', [0, 1, 0]), (-12, '2017_06_12_11', [-1, 0, 0]), (-14, '2017_06_12_09', [0, 1, 0]), (-15, '2017_06_12_08', [0, 1, 0]), (-7, '2017_06_12_16', [-1, 0, 0]), (-10, '2017_06_12_13', [-1, 0, 0])]
+    gl.chronologic =
+    {0: [None],
+            26=nombre d'heures avant le curent day
+     1: [   (-26, '2017_06_11_21', [0, 1, 0]),
+            (-27, '2017_06_11_20', [0, 1, 0]),
+             .... ],
+     2: [....}
     '''
 
     # La clé fait l'ordre = int = cle
@@ -130,6 +125,42 @@ def set_chronologic():
 
         cle += 1
     #print(gl.chronologic)
+
+def get_one_day_gap():
+    '''168 heures avant le jour courrant'''
+
+    somme = 0
+    p = 0
+    for i in range(len(gl.chronologic)):
+        for gap in gl.chronologic[i]:
+            try:
+                if gap[0] == -24:
+                    p += 1
+                    somme += abs(gap[2][1])
+            except:
+                pass
+
+    print("\n", "Nombre de jours avec écart à 1 jours:", p)
+    print("Somme des écarts à 1 jours:",somme)
+    print("Moyenne des écarts à 1 jours", somme/p, "\n")
+
+def get_seven_days_gap():
+    '''168 heures avant le jour courrant'''
+
+    somme = 0
+    p = 0
+    for i in range(len(gl.chronologic)):
+        for gap in gl.chronologic[i]:
+            try:
+                if gap[0] == -168:
+                    p += 1
+                    somme += abs(gap[2][1])
+            except:
+                pass
+
+    print("Nombre de jours avec écart à 7 jours:", p)
+    print("Somme des écarts à 7 jours:",somme)
+    print("Moyenne des écarts à 7 jours", somme/p, "\n")
 
 def get_hour_gap(current_day, day_hour):
     '''Retourne le nombre d'heures (int) entre jour courant à 23h et une
@@ -169,18 +200,15 @@ def set_gris_table():
 
 def variable_init():
 
-    gl.pause = 0
+    gl.manual = 0
     gl.restart = 0
+    gl.note = 0
 
     # Nombre de barres histogramme
     gl.num = 50
     gl.histo_mini = [0]*gl.num
     gl.histo_maxi = [0]*gl.num
     gl.histo_temps = [0]*gl.num
-
-    gl.time = gl.conf["rythm"]["time"]
-    # Nombre de frame pour affichage des prévisions d'un jour
-    gl.day_frame = gl.time
 
     # Dict des plages des mini, maxi, temps pour un jour à afficher
     #                        valeur haute, valeur basse
