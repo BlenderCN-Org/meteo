@@ -47,10 +47,14 @@ addObject(object, other, time=0)
 
 
 from time import sleep
+from datetime import timedelta
+
 from bge import logic as gl
 from bge import events
+
 from scripts.labtools import labgetobject as get_obj
-from datetime import timedelta
+from scripts import icons
+
 
 def main():
     # Maj de toutes les tempos
@@ -88,17 +92,10 @@ def main():
                 pretty_date_display(game_obj)
 
                 update_chronologic_histo(game_obj)
+                icons.main(game_obj)
                 set_spread(game_obj)
 
                 play_note()
-
-def play_note():
-    note = gl.note
-    #print(note)
-    note = int(note*36/30)
-    if 0 <= note < 36:
-        note = str(note)
-        gl.sound[note].play()
 
 def update_chronologic_histo(game_obj):
     '''Affichge des temp mini et maxi positionné en horizontal par rapport
@@ -111,20 +108,22 @@ def update_chronologic_histo(game_obj):
 
     # data du jour courant
     datas = gl.chronologic[gl.day_number]
+    datas.sort()
 
     life =  gl.time - 15
 
     for val in datas:
         if val:
+            # 6/336 = 0,017857
+            X = 0.017857 * val[0] + 33.0
+
             # Ajout des minis
             Z = -0.90
-            X = 0.01666 * val[0] + 33.0
             indice = 0
             add_rose(val, empty, scene, X, Z, life, indice)
 
             # Ajout des maxis
             Z = 0.52
-            X = 0.01666 * val[0] + 33.0
             indice = 1
             add_rose(val, empty, scene, X, Z, life, indice)
 
@@ -199,7 +198,7 @@ def set_resolution_visible(game_obj):
 
 def pretty_date_display(game_obj):
     if gl.day_number < len(gl.days):
-        # Set du  jour en cours
+        # Set du  jour en cours, soit "2017_06_15"
         gl.current_day = gl.days[gl.day_number]
 
         # Affichage du jour en cours
@@ -229,19 +228,13 @@ def set_spread(game_obj):
         maxi.sort()
         spread[1][0] = maxi[0]
         spread[1][1] = maxi[-1]
-        #print(maxi)
 
-        temps.sort()
-        spread[2][0] = temps[0]
-        spread[2][1] = temps[-1]
     except:
         print("Spread est None")
         spread[0][0] = 0
         spread[0][1] = 0
         spread[1][0] = 0
         spread[1][1] = 0
-        spread[2][0] = 0
-        spread[2][1] = 0
 
     #print(spread[1][0], spread[1][1])
     game_obj["mini mini"]["Text"] = spread[0][0]
@@ -250,7 +243,8 @@ def set_spread(game_obj):
     game_obj["maxi mini"]["Text"] = spread[1][0]
     game_obj["maxi maxi"]["Text"] = spread[1][1]
 
-    gl.note = abs(spread[0][1]) + abs(spread[1][1]) + abs(spread[2][1]) + abs(spread[1][1])
+    gl.note =   abs(spread[0][0]) + abs(spread[0][1]) \
+                + abs(spread[1][1]) + abs(spread[1][1])
 
 def keys():
 
@@ -312,3 +306,11 @@ def keys():
         if gl.day_frame < 0: gl.day_frame = 0
         gl.tempoDict["day"].periode = gl.day_frame
         gl.tempoDict["day"].tempo = -1
+
+def play_note():
+    note = gl.note
+    #print(note)
+    note = int(note*36/30)
+    if 0 <= note < 36:
+        note = str(note)
+        gl.sound[note].play()
