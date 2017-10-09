@@ -4,7 +4,7 @@
 ## meteo_gaps.py
 
 #############################################################################
-# Copyright (C) Labomedia Juin 2017
+# Copyright (C) Labomedia June 2017
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -34,7 +34,7 @@ import json
 from datetime import datetime
 from collections import OrderedDict
 from meteo_tools import MeteoTools
-from weather_types import weather_types, weather
+from weather_types import weather_icon
 
 
 # Le json des analyses
@@ -73,16 +73,17 @@ class MeteoGaps(MeteoTools):
             print("Nombre de jours avec prévisions =", len(self.days))
             print("Liste des jours avec prévisions:\n", self.days)
 
-    def get_weather_types(self, wt_str):
-        '''Retourne un entier correspondant au type de temps.'''
+    def get_weather_icon(self, w):
+        '''Retourne le nom de l'icone blender correspondant au type de temps.
+        '''
 
         try:
-            wt = weather[weather_types[wt_str]]
+            wi = weather_icon[w]
         except:
-            print("Vous devez ajouter {} à weather_types".format(wt_str))
-            print("et faire correspondre avec weather")
-            os._exit(0)
-        return wt
+            print("Vous devez ajouter {} à weather_icon".format(w))
+            #os._exit(0)
+            wi = None
+        return wi
 
     def write_gaps(self):
         '''Ecrit en écrasant le fichier GAPS.'''
@@ -153,7 +154,7 @@ class MeteoGaps(MeteoTools):
             key_temps = day + "_14"
             if key_temps in self.forecasts:
                 if day in self.forecasts[key_temps]:
-                    wt = self.get_weather_types(self.forecasts[key_temps][day][3])
+                    wt = self.get_weather_icon(self.forecasts[key_temps][day][3])
             else:
                 wt = None
 
@@ -240,14 +241,12 @@ class MeteoGaps(MeteoTools):
 
             # Parcours de prev = dict des prév du jour
             for k, p in prev.items():
-                # Conversion du type de temps en entier
-                # p[3] = 'Averses orageuses'
-                wt = self.get_weather_types(p[3])
-
                 try:
-                    ecart = [ (p[1] - real_w[0]),
-                              (p[2] - real_w[1]),
-                              (wt   - real_w[2])]
+                    # icon de type de temps p[3] = 'Averses orageuses'
+                    wt = self.get_weather_icon(p[3])
+                    ecart = [ p[1] - real_w[0],
+                              p[2] - real_w[1],
+                              wt]
                     if self.debug == 2:
                         a = "Le {} pour le jour {} maxi: prévu {} écart {}"
                         print(a.format(j_h, k, p[2], ecart[1]))
@@ -256,10 +255,7 @@ class MeteoGaps(MeteoTools):
                     ecart = None
 
                 # L'écart du jour/heure
-                if ecart:
-                    self.gaps[j][k] = ecart
-                else:
-                    self.gaps[j] = None
+                self.gaps[j][k] = ecart
 
         print("Nombre de jours avec écarts y compris les écarts None", len(self.gaps))
         if self.debug == 1:
@@ -296,4 +292,3 @@ def main():
 if __name__ == "__main__":
 
     main()
-

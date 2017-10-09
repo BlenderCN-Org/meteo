@@ -5,7 +5,7 @@
 
 
 #############################################################################
-# Copyright (C) Labomedia Juin 2017
+# Copyright (C) Labomedia June 2017
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -203,4 +203,3 @@ def test():
 if __name__ == "__main__":
 
     test()
-

@@ -4,7 +4,7 @@
 ## always.py
 
 #############################################################################
-# Copyright (C) Labomedia November 2012
+# Copyright (C) Labomedia June 2017
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -83,19 +83,22 @@ def main():
     else:
         if gl.tempoDict["day"].tempo == 0:
             # Maj de gl.day_number
-            set_day_number()
+            set_day_number(game_obj)
 
             # Pour text
             set_resolution_visible(game_obj)
 
             if not gl.restart:
-                pretty_date_display(game_obj)
-
                 update_chronologic_histo(game_obj)
                 icons.main(game_obj)
+                gl.note_index = 0
                 set_spread(game_obj)
 
                 play_note()
+
+        # note avec icon rapide
+        icons.icons_note()
+
 
 def update_chronologic_histo(game_obj):
     '''Affichge des temp mini et maxi positionné en horizontal par rapport
@@ -133,13 +136,16 @@ def add_rose(val, empty, scene, X, Z, life, indice):
     empty.worldPosition = (X, 0, Z)
     obj_added = scene.addObject("rose", empty, life)
 
-    larg = 0.02
+    larg = 0.01
 
-    if val[2][indice]:
-        sz = val[2][indice]/10
-        if -0.001 < sz < 0.001:
-            sz = 0.006
-        obj_added.worldScale = (larg, 0, sz)
+    if val and val[2]:
+        if val[2][indice]:
+            sz = val[2][indice]/10
+            if -0.001 < sz < 0.001:
+                sz = 0.006
+            obj_added.worldScale = (larg, 0, sz)
+        else:
+            obj_added.worldScale = (larg, 0, 0.006)
     else:
         obj_added.worldScale = (larg, 0, 0.006)
 
@@ -155,7 +161,7 @@ def traits_display(game_obj):
         obj_added = scene.addObject("gris5", empty, 0)
         obj_added.worldScale = (0.02, 0, 4)
 
-def set_day_number():
+def set_day_number(game_obj):
     '''Toutes les gl.frame,
     récup et affichage des prévisions d'un nouveau jour,
     pour histogramm dynamic.
@@ -168,33 +174,14 @@ def set_day_number():
     if not gl.manual:
         gl.day_number += 1
 
+    pretty_date_display(game_obj)
+
     if gl.day_number < len(gl.days):
-        print("\nNuméro du jour en cours =", gl.day_number)
+        print("\nJour en cours {} numéro {} ".format(gl.current_day,
+                                                        gl.day_number))
     else:
          gl.restartGame()
          gl.restart = 1
-
-def pretty_date(date):
-    '''Retourne une date à la française'''
-
-    return gl.meteo_tools.get_pretty_date(date)
-
-def set_resolution_visible(game_obj):
-    for o in game_obj:
-        try:
-            o.visible = True
-        except:
-            pass
-
-    # Le cube avec logo reste invisible
-    game_obj["Cube"].visible = False
-
-    for o in game_obj:
-        try:
-            if o["Text"]:
-                o.resolution = 32
-        except:
-            pass
 
 def pretty_date_display(game_obj):
     if gl.day_number < len(gl.days):
@@ -212,15 +199,14 @@ def set_spread(game_obj):
     maxi = []
     temps = []
 
-    if gl.day_number < len(gl.days):
-        for val in gl.chronologic[gl.day_number]:
-            if val:
+    try:
+        if gl.day_number < len(gl.days):
+            for val in gl.chronologic[gl.day_number]:
                 # k = int, v = [None] ou [(-161, '2017_09_16_06', [-1, -2, -2]), ....
                 mini.append( val[2][0])
                 maxi.append( val[2][1])
                 temps.append(val[2][2])
 
-    try:
         mini.sort()
         spread[0][0] = mini[0]
         spread[0][1] = mini[-1]
@@ -314,3 +300,25 @@ def play_note():
     if 0 <= note < 36:
         note = str(note)
         gl.sound[note].play()
+
+def pretty_date(date):
+    '''Retourne une date à la française'''
+
+    return gl.meteo_tools.get_pretty_date(date)
+
+def set_resolution_visible(game_obj):
+    for o in game_obj:
+        try:
+            o.visible = True
+        except:
+            pass
+
+    # Le cube avec logo reste invisible
+    game_obj["Cube"].visible = False
+
+    for o in game_obj:
+        try:
+            if o["Text"]:
+                o.resolution = 32
+        except:
+            pass

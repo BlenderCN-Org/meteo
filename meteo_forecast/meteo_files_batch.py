@@ -4,7 +4,7 @@
 ## meteo_files_batch.py
 
 #############################################################################
-# Copyright (C) Labomedia Juin 2017
+# Copyright (C) Labomedia June 2017
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -132,14 +132,17 @@ class MeteoFilesBatch(AnalysedManagement):
         for f in pas_vu:
             print("Fichier en cours d'analyse: {}".format(f))
             analysed.append(f)
-            try:
-                if self.new_or_not(f):
-                    result = self.analyse_beautiful_meteo_new(f)
-                else:
+
+            if self.new_or_not(f):
+                result = self.analyse_beautiful_meteo_new(f)
+            else:
+                # Fichier avant le 2 août ne pose pas de pb
+                try:
                     result = self.analyse_beautiful_meteo(f)
-            except:
-                print("Fichier impossible à analyser !")
-                result = None
+                except:
+                    # il n'y a jamais d'exception
+                    print("Fichier impossible à analyser !")
+                    result = None
 
             if result:
                 self.forecast_to_dict(result)

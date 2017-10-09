@@ -5,7 +5,7 @@
 
 
 #############################################################################
-# Copyright (C) Labomedia Juin 2017
+# Copyright (C) Labomedia June 2017
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -125,8 +125,10 @@ class BeautifulMeteoNew:
         """Le tout dans le dict forecast."""
 
         for i in range(14):
-            self.frcst_dict[self.days_list[i]] = [days[i], tm[i], tM[i],
-                                                  type_temps[i]]
+            self.frcst_dict[self.days_list[i]] = [  days[i],
+                                                    tm[i],
+                                                    tM[i],
+                                                    type_temps[i]]
 
     def get_liste_jours(self):
         """Retourne la partie de la page html avec toutes les infos."""
@@ -139,34 +141,64 @@ class BeautifulMeteoNew:
     def get_jours(self):
         """Récupération des jours."""
 
-        jours = self.liste_jours[0].find_all("a")
+        try:
+            jours = self.liste_jours[0].find_all("a")
+        except:
+            print("Pas de jours")
+            jours = None
 
         # Récupération dans une liste de 14
         days = []
-        for elt in jours:
-             days.append(elt.get_text())
+        if jours:
+            for elt in jours:
+                 days.append(elt.get_text())
+        else:
+            days = [None]*14
+
         return days
 
     def get_t_min(self):
         """Récupération des temps mini."""
 
-        min_temp = self.liste_jours[0].find_all("span", class_="min-temp")
+        try:
+            min_temp = self.liste_jours[0].find_all("span", class_="min-temp")
+        except:
+            print("Pas de min_temp")
+            min_temp = None
 
         tm = []
-        for elt in min_temp:
-            # Coupe de °C Minimale
-            tm.append(int(elt.get_text()[:-11]))
+        if min_temp:
+            for elt in min_temp:
+                try:
+                    m = int(elt.get_text()[:-11])
+                except:
+                    print("Pas de temp mini")
+                    m = None
+                tm.append(m)
+        else:
+            tm = [None]*14
         return tm
 
     def get_t_max(self):
         """Récupération des temps maxi."""
 
-        # temp maxi
-        max_temp = self.liste_jours[0].find_all("span", class_="max-temp")
+        try:
+            max_temp = self.liste_jours[0].find_all("span", class_="max-temp")
+        except:
+            print("Pas de max_temp")
+            max_temp = None
 
         tM = []
-        for elt in max_temp:
-            tM.append(int(elt.get_text()[:-11]))
+        if max_temp:
+            for elt in max_temp:
+                try:
+                    m = int(elt.get_text()[:-11])
+                except:
+                    print("Pas de temp maxi")
+                    m = None
+                tM.append(m)
+        else:
+            tM = [None]*14
         return tM
 
     def get_type_temps(self):
@@ -176,85 +208,38 @@ class BeautifulMeteoNew:
                     14°C Minimale 29°C Maximale
         """
 
-        type_temps = self.liste_jours[0].find_all("dd")
+        try:
+            type_temps = self.liste_jours[0].find_all("dd")
+        except:
+            print("Pas de type_temps")
+            type_temps = None
+
         tt = []
-        for elt in type_temps:
-            toto = elt.get_text()
-            if not "°C" in toto:
-                tt.append(toto.splitlines()[0])  # la 1ère ligne
+        if type_temps:
+            for elt in type_temps:
+                toto = elt.get_text()
+                if not "°C" in toto:
+                    try:
+                        t = toto.splitlines()[0]
+                    except:
+                        print("Pas de type de temps")
+                        t = None
+                    tt.append(t)  # la 1ère ligne
+        else:
+            tt = [None]*14
         return tt
 
 
 def test():
-    '''Vérif
-    sam 05
-        Éclaircies
-        16°C Minimale 25°C Maximale
-    dim 06
-        Ensoleillé
-        11°C Minimale 25°C Maximale
-    lun 07
-        Ensoleillé
-        12°C Minimale 27°C Maximale
-    mar 08
-        Rares averses
-        14°C Minimale 22°C Maximale
-    mer 09
-        Averses orageuses
-        12°C Minimale 20°C Maximale
-    jeu 10
-        Averses
-        11°C Minimale 22°C Maximale
-    ven 11
-        Éclaircies
-        11°C Minimale 24°C Maximale
-    sam 12
-        Ensoleillé
-        12°C Minimale 27°C Maximale
-    dim 13
-        Ensoleillé
-        14°C Minimale 30°C Maximale
-    lun 14
-        Ensoleillé
-        15°C Minimale 29°C Maximale
-    mar 15
-        Ensoleillé
-        15°C Minimale 28°C Maximale
-    mer 16
-        Ensoleillé
-        14°C Minimale 29°C Maximale
-    jeu 17
-        Ensoleillé
-        15°C Minimale 28°C Maximale
-    ven 18
-        Ensoleillé
-        15°C Minimale 27°C Maximale
-
-    {'2017_08_05_08': {
-    '2017_08_05': ['sam 05', 16, 25, 'Éclaircies'],
-    '2017_08_06': ['dim 06', 11, 25, 'Ensoleillé'],
-    '2017_08_07': ['lun 07', 12, 27, 'Ensoleillé'],
-    '2017_08_08': ['mar 08', 14, 22, 'Rares averses'],
-    '2017_08_09': ['mer 09', 12, 20, 'Averses orageuses'],
-    '2017_08_10': ['jeu 10', 11, 22, 'Averses'],
-    '2017_08_11': ['ven 11', 11, 24, 'Éclaircies'],
-    '2017_08_12': ['sam 12', 12, 27, 'Ensoleillé'],
-    '2017_08_13': ['dim 13', 14, 30, 'Ensoleillé'],
-    '2017_08_14': ['lun 14', 15, 29, 'Ensoleillé'],
-    '2017_08_15': ['mar 15', 15, 28, 'Ensoleillé'],
-    '2017_08_16': ['mer 16', 14, 29, 'Ensoleillé'],
-    '2017_08_17': ['jeu 17', 15, 28, 'Ensoleillé'],
-    '2017_08_18': ['ven 18', 15, 27, 'Ensoleillé']
-    }}
-    '''
 
     # Chemin relatif
-    file_path_name =  "meteo_files/2017_08/meteo_2017_08_05_08_05_20.html"
+    files =  ["meteo_files/2017_08/meteo_2017_08_02_00_05_25.html"]
 
-    forecast = BeautifulMeteoNew(file_path_name)
-    forecast.get_forecast()
+    for f in files:
+        forecast = BeautifulMeteoNew(f)
+        forecast.get_forecast()
 
-    print("Prévisions\n", forecast.forecast, "\n")
+        print("Prévisions\n", forecast.forecast, "\n")
 
 
 

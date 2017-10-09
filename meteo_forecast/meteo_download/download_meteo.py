@@ -3,7 +3,6 @@
 
 # download_meteo.py
 
-'''
 #############################################################################
 # Copyright (C) Labomedia Juin 2017
 #
@@ -22,7 +21,8 @@
 #  Inc., 51 Franproplin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 #############################################################################
-'''
+
+
 
 from time import sleep
 import datetime

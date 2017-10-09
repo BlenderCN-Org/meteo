@@ -4,7 +4,7 @@
 ## main_once.py
 
 #############################################################################
-# Copyright (C) Labomedia November 2012
+# Copyright (C) Labomedia June 2017
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -28,7 +28,7 @@ Ne jamais modifier ce script.
 Les scripts:
 - labomedia_once.py
 - labomedia_always.py
-sont les seuls scripts importer directement dans Blender.
+sont les seuls scripts importés directement dans Blender.
 Les autres scripts sont importés en temps que modules.
 
 Il est alors possible de les modifier dans un éditeur externe

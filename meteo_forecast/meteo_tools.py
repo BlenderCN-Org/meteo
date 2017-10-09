@@ -4,7 +4,7 @@
 ## meteo_tools.py
 
 #############################################################################
-# Copyright (C) Labomedia Juin 2017
+# Copyright (C) Labomedia June 2017
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -208,6 +208,20 @@ class MeteoTools:
             thirteen_days.append(x_date)
 
         #['2017_07_29', '2017_07_30', '2017_07_31' ..
+        return thirteen_days
+
+    def get_thirteen_days_before(self, today):
+        '''Retourne une liste des 13 jours en symbole suivant le
+        today = 2017-07-29 01:00:00
+        '''
+
+        thirteen_days = []
+
+        for i in range(13):
+            date = today - timedelta(days=i+1)
+            x_date = date.strftime('%Y_%m_%d')
+            thirteen_days.append(x_date)
+
         return thirteen_days
 
     def get_weather_types(self):
