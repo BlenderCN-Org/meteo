@@ -31,9 +31,9 @@ from time import sleep
 
 
 class LabTcpClient:
-    '''Envoi et réception sur le même socket en TCP.
+    """Envoi et réception sur le même socket en TCP.
     Toutes les méthodes sont sans try.
-    '''
+    """
 
     def __init__(self, ip, port):
 
@@ -45,7 +45,7 @@ class LabTcpClient:
         self.create_socket()
 
     def create_socket(self):
-        '''Création du socket sans try, et avec connexion.'''
+        """Création du socket sans try, et avec connexion."""
 
         while not self.sock:
 
@@ -57,7 +57,7 @@ class LabTcpClient:
             sleep(0.1)
 
     def send(self, msg):
-        '''Envoi d'un message, avec send, msg doit être encodé avant.'''
+        """Envoi d'un message, avec send, msg doit être encodé avant."""
 
         # Création d'un socket si besoin
         if not self.sock:
@@ -73,19 +73,19 @@ class LabTcpClient:
             self.sock = None
 
     def reconnect(self):
-        '''Reconnexion.'''
+        """Reconnexion."""
 
         self.sock = None
         self.create_socket()
 
     def close(self):
-        '''Fermeture de la socket.'''
+        """Fermeture de la socket."""
 
         self.sock.close()
         self.sock = None
 
     def listen(self):
-        '''Retourne les data brutes reçues.'''
+        """Retourne les data brutes reçues."""
 
         raw_data = None
 

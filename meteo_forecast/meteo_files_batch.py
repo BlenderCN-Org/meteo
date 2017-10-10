@@ -51,10 +51,10 @@ FORECAST = "output/forecast.txt"
 
 
 class AnalysedManagement(MeteoTools):
-    '''Gestion des fichiers analysés, et pas encore analysés.
+    """Gestion des fichiers analysés, et pas encore analysés.
     analysed = liste des chemins relatifs
     meteo_files/2017_06/meteo_2017_06_11_22_05_42.html
-    '''
+    """
 
     def __init__(self):
         super().__init__()
@@ -62,16 +62,16 @@ class AnalysedManagement(MeteoTools):
         self.unanalysed = []
 
     def get_analysed(self):
-        '''analysed.txt = json = liste de tous les analysés.'''
+        """analysed.txt = json = liste de tous les analysés."""
 
         self.analysed = self.get_json_file(ANALYSED)
         if self.analysed == None:
             self.analysed = []
 
     def get_unanalysed(self):
-        '''Retourne les fichiers non analysés dans une liste,
+        """Retourne les fichiers non analysés dans une liste,
         avec chemin absolu.
-        '''
+        """
 
         tous = self.get_all_files(METEO_FILES_DIR)
         tous_list = self.files_dict_to_list(tous)
@@ -83,9 +83,9 @@ class AnalysedManagement(MeteoTools):
         self.unanalysed = [item for item in tous_list if item not in self.analysed]
 
     def record_analysed(self):
-        '''Ajoute les listes analysed et unanalysed,
+        """Ajoute les listes analysed et unanalysed,
         puis enregistre le json
-        '''
+        """
 
         tous = self.analysed + self.unanalysed
 
@@ -93,17 +93,17 @@ class AnalysedManagement(MeteoTools):
 
 
 class MeteoFilesBatch(AnalysedManagement):
-    '''Analyse avec BeautifulMeteo ou New les fichiers pas encore analysés.'''
+    """Analyse avec BeautifulMeteo ou New les fichiers pas encore analysés."""
 
     def __init__(self):
         super().__init__()
         self.forecast = {}
 
     def new_or_not(self, fichier):
-        '''Retourne 0 si avant le 2017_08_02 à 00h00, 1 sinon
+        """Retourne 0 si avant le 2017_08_02 à 00h00, 1 sinon
         avec chemin relatif:
         fichier = /meteo_files/2017_06/meteo_2017_06_11_16_05_30.html
-        '''
+        """
 
         # key = 2017_06_11_16
 
@@ -124,9 +124,9 @@ class MeteoFilesBatch(AnalysedManagement):
         return new
 
     def analyse(self, pas_vu):
-        '''Analyse en fonction de la date du fichier.
+        """Analyse en fonction de la date du fichier.
         Fichiers dans une liste.
-        '''
+        """
 
         analysed = []
         for f in pas_vu:
@@ -150,7 +150,7 @@ class MeteoFilesBatch(AnalysedManagement):
             sleep(0.1)
 
     def analyse_beautiful_meteo(self, fichier):
-        '''Fichier: nom avec chemin absolu.'''
+        """Fichier: nom avec chemin absolu."""
 
         bm = BeautifulMeteo(fichier)
         bm.get_forecast()
@@ -159,7 +159,7 @@ class MeteoFilesBatch(AnalysedManagement):
         return result
 
     def analyse_beautiful_meteo_new(self, fichier):
-        '''Fichier: nom avec chemin absolu.'''
+        """Fichier: nom avec chemin absolu."""
 
         bmn = BeautifulMeteoNew(fichier)
         bmn.get_forecast()
@@ -168,9 +168,9 @@ class MeteoFilesBatch(AnalysedManagement):
         return result
 
     def forecast_to_dict(self, result):
-        '''"clé = meteo_files/2017_08/meteo_2017_08_05_08_05_20.html
+        """"clé = meteo_files/2017_08/meteo_2017_08_05_08_05_20.html
         il faut 2017_08_07_01
-        '''
+        """
 
         self.forecast = self.dict_sum(self.forecast, result)
 

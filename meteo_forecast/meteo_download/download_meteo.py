@@ -23,7 +23,6 @@
 #############################################################################
 
 
-
 from time import sleep
 import datetime
 import urllib.request
@@ -37,28 +36,20 @@ class DownloadMeteo:
         self.url = url
         self.debug = debug
         self.tools = MeteoTools()
+        self.page = "\n"
 
-    def downloadFile(self, file_name):
-        '''Télécharge et enregistre un fichier.
+    def download_file(self):
+        """Télécharge et enregistre un fichier.
         Cette fonction fait 2 choses, il faudrait 2 fonctions !
         file_name avec chemin absolu
-        '''
+        """
 
         # Open the url
         try:
             page = urllib.request.urlopen(self.url)
-
-            # Open our local file for writing
-            local_file = open(file_name, "w")
-
-            # Write to our local file
-            decoded_page = page.read().decode("utf-8")
-
+            self.page = page.read().decode("utf-8")
             # Ajout d'un EOF
-            decoded_page += "\n"
-
-            local_file.write(decoded_page)
-            local_file.close()
+            self.page += "\n"
 
         # handle errors
         except HTTPError as e:
@@ -66,10 +57,18 @@ class DownloadMeteo:
         except URLError as e:
                 print("URL Error:", e.reason)
 
+    def write_file(self, file_name):
+        """Ecrit la page html dans un fichier."""
+
+        with open(file_name, 'w') as my_file:
+            my_file.write(self.page)
+
+        my_file.close()
+
     def create_path_file_name(self):
-        '''Crée le nom du fichier qui sera enregisté dans un dossier par mois
+        """Crée le nom du fichier qui sera enregisté dans un dossier par mois
         exemple: meteo_files/2017_06/meteo_2017_06_11_16_23.html
-        '''
+        """
 
         today = datetime.datetime.today()
 
@@ -80,15 +79,22 @@ class DownloadMeteo:
         self.tools.create_dir_year_month_in_meteo_files(year_month)
 
         # Nom du fichier avec son chemin absolu
-        name = '{:meteo_files/%Y_%m/meteo_%Y_%m_%d_%H_%M_%S.html}'.format(today)
+        name = "{:meteo_files/%Y_%m/meteo_%Y_%m_%d_%H_%M_%S.html}".format(today)
 
         if self.debug:
             print("Nom du chemin et fichier", name)
 
         return name
 
+    def download_and_write(self, file_name):
+        """download_and_write"""
+        
+        print("Téléchargement de:", file_name)
+        self.download_file()
+        self.write_file(file_name)
+
     def every_hour_loop(self):
-        '''Teste toutes les mn si l'heure est ok'''
+        """Teste toutes les mn si l'heure est ok"""
 
         while 1:
             today = datetime.datetime.today()
@@ -99,17 +105,17 @@ class DownloadMeteo:
             file_name = self.create_path_file_name()
 
             if '{: %M}'.format(today) == " 05":
-                print("Téléchargement de:", file_name)
-                self.downloadFile(file_name)
+                self.download_and_write(file_name)
 
             if self.debug:
-                print("Téléchargement de:", file_name)
-                self.downloadFile(file_name)
+                self.download_and_write(file_name)
 
             sleep(60)
 
 
 def main():
+    """Lancement de ce script"""
+    
     # Pour test
     debug = 0
 

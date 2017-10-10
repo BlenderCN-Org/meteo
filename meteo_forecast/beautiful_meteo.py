@@ -34,16 +34,16 @@ from meteo_tools import MeteoTools
 
 
 class BeautifulMeteo(MeteoTools):
-    '''Fouille dans la page pour trouver les
+    """Fouille dans la page pour trouver les
     températures mini, maxi, type de temps du jour courant et
     des 13 jours suivant.
 
     Retourne un dict.
     Utilise BeautifulSoup.
-    '''
+    """
 
     def __init__(self, file_path_name):
-        '''Chemin absolu avec nom du fichier.'''
+        """Chemin absolu avec nom du fichier."""
 
         super().__init__()
 
@@ -172,7 +172,7 @@ class BeautifulMeteo(MeteoTools):
                       my_day, jour, self.frcst_dict[my_day]))
 
 def test():
-    '''Bonne réponse
+    """Bonne réponse
     lun 12 12 24
     mar 13 10 25
     mer 14 14 32
@@ -187,7 +187,7 @@ def test():
     ven 23 14 28
     sam 24 15 27
     dim 25 14 25
-    '''
+    """
 
     # Chemin relatif
     file_path_name = "meteo_files/2017_06/meteo_2017_06_12_10_05_19.html"

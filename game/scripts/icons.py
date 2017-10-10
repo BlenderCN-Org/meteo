@@ -29,42 +29,14 @@ from bge import events
 from scripts.labtools import labgetobject as get_obj
 
 
-'''
+"""
 Pour la clé: "2017_06_12":
 la valeur est:
 data = {
 "2017_06_11_21": [0, 1, "soleil"],
 "2017_06_12_13": [-1, 0, "soleil"],
-"2017_06_12_12": [-1, 0, "soleil"],
-"2017_06_12_04": [0, 1, "soleil"],
-"2017_06_12_10": [-1, 0, "soleil"],
-"2017_06_12_22": [-1, -1, "soleil"],
-"2017_06_12_01": [0, 1, "soleil"],
-"2017_06_12_23": [-1, -1, "soleil"],
-"2017_06_12_19": [-1, -1, "soleil"],
-"2017_06_12_18": [-1, -1, "soleil"],
-"2017_06_11_23": [0, 1, "soleil"],
-"2017_06_12_05": [0, 1, "soleil"],
-"2017_06_12_21": [-1, -1, "soleil"],
-"2017_06_11_20": [0, 1, "soleil"],
-"2017_06_12_02": [0, 1, "soleil"],
-"2017_06_12_11": [-1, 0, "soleil"],
-"2017_06_12_07": [0, 1, "soleil"],
-"2017_06_12_14": [-1, 0, "soleil"],
-"2017_06_11_18": [0, 1, "soleil"],
-"2017_06_12_17": [-1, 0, "soleil"],
-"2017_06_12_00": [0, 1, "soleil"],
-"2017_06_11_19": [0, 1, "soleil"],
-"2017_06_11_22": [0, 1, "soleil"],
-"2017_06_12_16": [-1, 0, "soleil"],
-"2017_06_12_03": [0, 1, "soleil"],
-"2017_06_12_09": [0, 1, "soleil"],
-"2017_06_12_08": [0, 1, "soleil"],
-"2017_06_12_06": [0, 0, "soleil"],
-"2017_06_12_15": [-1, 0, "soleil"],
-"2017_06_12_20": [-1, -1, "soleil"]}
-'''
-
+"2017_06_12_12": [-1, 0, "soleil"]}
+"""
 
 ICONS = [   "soleil",
             "ciel_voile",
@@ -83,7 +55,6 @@ ICONS = [   "soleil",
             "neige",
             "neige_forte",
             "risque_de_grele",
-            "risque_d_orages",
             "orages",
             "risque_d_orages",
             None]
@@ -96,15 +67,15 @@ def main(game_obj):
     set_icon_position(icons_list, game_obj)
 
 def get_day_data():
-    '''[(-23, '2017_06_12_00', [0, 1, 'soleil']),
+    """[(-23, '2017_06_12_00', [0, 1, 'soleil']),
         (-19, '2017_06_12_04', [0, 1, 'soleil']),
         (-20, '2017_06_12_03', [0, 1, 'soleil']), etc ....]
-    '''
+    """
 
     return gl.chronologic[gl.day_number]
 
 def get_icons(data):
-    '''Je récupère les type de temps à 14 h
+    """Je récupère les type de temps à 14 h
 
     Si gl.current_day = "2017_06_12"
 
@@ -115,7 +86,7 @@ def get_icons(data):
         etc ....
     dans une liste ["soleil", "ciel_voile", etc ....]
     classé de j à j -13
-    '''
+    """
 
     icons_list = []
     if data:
@@ -128,22 +99,22 @@ def get_icons(data):
 
     icons_list.sort()
 
-    '''
+    """
     icons_list = [
     ('2017_09_23', 'eclaircie'),
     ('2017_09_24', 'eclaircie'),
     ('2017_10_06', 'eclaircie')
     ]
-    '''
+    """
     icons_list = icons_list_completion(icons_list)
 
     return icons_list
 
 def get_fourteen_days_before():
-    ''' si gl.current_day = 2017_10_06
+    """ si gl.current_day = 2017_10_06
     les 13 jours précédents sont
     2017_10_05, 2017_10_04, ....., 2017_10_01, 2017_09_30, ....
-    '''
+    """
 
     # today = 2017-07-29 01:00:00
     real = gl.meteo_tools.get_real_date_time(gl.current_day + "_00_01")
@@ -156,7 +127,7 @@ def get_fourteen_days_before():
     return fourteen_days
 
 def icons_list_completion(icons_list):
-    '''len de = 14 icons_list'''
+    """len de = 14 icons_list"""
 
     fourteen_days = get_fourteen_days_before()
     icons_list_new = [None]*14
@@ -171,13 +142,13 @@ def icons_list_completion(icons_list):
     return icons_list_new
 
 def set_icon_position(icons_list, game_obj):
-    ''' Z = 0
+    """ Z = 0
         Y = 0
         X de 27 à 33 pour 13 icones
         pas de 1ère
         14 intervales
         6/14 = 0.42857
-    '''
+    """
 
 
     # pour ajout des objets
@@ -186,7 +157,7 @@ def set_icon_position(icons_list, game_obj):
 
     Y = 0
     Z = -0.2
-    life =  gl.time - 15
+    life =  gl.time - gl.correction
 
     for i in range(len(icons_list)):
         X = 33 - i*0.42857 - 0.42857/2
@@ -199,16 +170,18 @@ def set_icon_position(icons_list, game_obj):
             obj_added.worldScale = (1,1,1)
 
 def icons_note():
-    if gl.tempoDict["note"].tempo == 0:
-        current_icon = gl.icons_list[gl.note_index][1]
-
-        if current_icon:
+    if gl.tempoDict["note"].tempo == 5:
+        # len de gl.icons_list=14, gl.icon_index=maxi 13
+        if gl.icon_index < 14:
+            current_icon = gl.icons_list[gl.icon_index][1]
             note = ICONS.index(current_icon)
+
             if gl.current_note != note:
                 if 0 <= note < 36:
                     new_note = str(note + 15)
-                    print(new_note)
+                    print("Note:", new_note)
                     gl.sound[new_note].play()
+
             gl.current_note = note
 
-        gl.note_index += 1
+            gl.icon_index += 1

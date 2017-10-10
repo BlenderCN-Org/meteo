@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-## beautiful_meteo_new.py
+# beautiful_meteo_new.py
 
 
 #############################################################################
@@ -24,28 +24,27 @@
 #############################################################################
 
 
-################  Valable à partir du 2017_08_02 à 00h00 ################
+# ###############  Valable à partir du 2017_08_02 à 00h00 ################
 
-# Les informaticiens se sont surpassés !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# c'est du python plus propre comme le fichier
+# Les informaticiens de la météo se sont surpassés !!!!!!!!!!!!!!!!!!!!!!!!!!!
+# Mon python est plus propre comme le fichier html
 
 
-from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from meteo_tools import MeteoTools
 
 
 class BeautifulMeteoNew:
-    '''Fouille dans la page pour trouver les
+    """Fouille dans la page pour trouver les
     températures mini, maxi, type de temps
     des 13 jours suivant le jour/heure courant.
 
     Retourne un dict de meteo_2017_07_29_01_05_09.html
     Utilise BeautifulSoup.
-    '''
+    """
 
     def __init__(self, file_path_name):
-        '''Chemin absolu avec nom du fichier.'''
+        """Chemin absolu avec nom du fichier."""
 
         self.debug = 0
         self.file_path_name = file_path_name
@@ -74,7 +73,7 @@ class BeautifulMeteoNew:
         self.thirteen_days = self.tools.get_thirteen_days(self.today)
         if self.debug:
             print("Liste des 13 jours suivant le {}: \n{} \n".
-                    format(self.today_key[:-3], self.thirteen_days))
+                  format(self.today_key[:-3], self.thirteen_days))
 
         # La liste des 14 jours
         self.days_list = [self.today_key[:-3]]
@@ -93,10 +92,10 @@ class BeautifulMeteoNew:
         file_list = list(self.file_path_name)
 
         # Recherche du dernier / dans file_name
-        slash_list = [i for i,x in enumerate(file_list) if x == "/"]  # 4 12
+        slash_list = [i for i, x in enumerate(file_list) if x == "/"]  # 4 12
 
         # Coupe de tout avant le dernier / et la fin: _05_09.html
-        return self.file_path_name[slash_list[-1]+7:-11]
+        return self.file_path_name[slash_list[-1] + 7:-11]
 
     def get_forecast(self):
         """Dans la page html, trouve les températures mini maxi type de temps
@@ -125,10 +124,10 @@ class BeautifulMeteoNew:
         """Le tout dans le dict forecast."""
 
         for i in range(14):
-            self.frcst_dict[self.days_list[i]] = [  days[i],
-                                                    tm[i],
-                                                    tM[i],
-                                                    type_temps[i]]
+            self.frcst_dict[self.days_list[i]] = [days[i],
+                                                  tm[i],
+                                                  tM[i],
+                                                  type_temps[i]]
 
     def get_liste_jours(self):
         """Retourne la partie de la page html avec toutes les infos."""
@@ -151,9 +150,9 @@ class BeautifulMeteoNew:
         days = []
         if jours:
             for elt in jours:
-                 days.append(elt.get_text())
+                days.append(elt.get_text())
         else:
-            days = [None]*14
+            days = [None] * 14
 
         return days
 
@@ -176,7 +175,7 @@ class BeautifulMeteoNew:
                     m = None
                 tm.append(m)
         else:
-            tm = [None]*14
+            tm = [None] * 14
         return tm
 
     def get_t_max(self):
@@ -198,7 +197,7 @@ class BeautifulMeteoNew:
                     m = None
                 tM.append(m)
         else:
-            tM = [None]*14
+            tM = [None] * 14
         return tM
 
     def get_type_temps(self):
@@ -226,14 +225,13 @@ class BeautifulMeteoNew:
                         t = None
                     tt.append(t)  # la 1ère ligne
         else:
-            tt = [None]*14
+            tt = [None] * 14
         return tt
 
 
 def test():
-
     # Chemin relatif
-    files =  ["meteo_files/2017_08/meteo_2017_08_02_00_05_25.html"]
+    files = ["meteo_files/2017_08/meteo_2017_08_02_00_05_25.html"]
 
     for f in files:
         forecast = BeautifulMeteoNew(f)
@@ -242,7 +240,5 @@ def test():
         print("Prévisions\n", forecast.forecast, "\n")
 
 
-
 if __name__ == "__main__":
-
     test()

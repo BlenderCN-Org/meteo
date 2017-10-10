@@ -46,7 +46,7 @@ GAPS = "output/gaps.txt"
 
 
 class MeteoGaps(MeteoTools):
-    '''Trouve les gaps pour chaque jour/heure.'''
+    """Trouve les gaps pour chaque jour/heure."""
 
     def __init__(self):
         super().__init__()
@@ -57,7 +57,7 @@ class MeteoGaps(MeteoTools):
         self.forecasts = self.get_json_file(FORECAST)
 
     def get_all_days_in_forecasts(self):
-        '''Uniquement les jours, sans doublon et sans heures.'''
+        """Uniquement les jours, sans doublon et sans heures."""
 
         self.days = []
         for d, p in self.forecasts.items():
@@ -74,8 +74,8 @@ class MeteoGaps(MeteoTools):
             print("Liste des jours avec prévisions:\n", self.days)
 
     def get_weather_icon(self, w):
-        '''Retourne le nom de l'icone blender correspondant au type de temps.
-        '''
+        """Retourne le nom de l'icone blender correspondant au type de temps.
+        """
 
         try:
             wi = weather_icon[w]
@@ -86,12 +86,12 @@ class MeteoGaps(MeteoTools):
         return wi
 
     def write_gaps(self):
-        '''Ecrit en écrasant le fichier GAPS.'''
+        """Ecrit en écrasant le fichier GAPS."""
 
         self.write_json_file(self.gaps, GAPS)
 
     def get_real_weathers(self):
-        '''Retourne le temps réél du jour day
+        """Retourne le temps réél du jour day
 
         pour le mini
         "2017_06_12_08":
@@ -129,7 +129,7 @@ class MeteoGaps(MeteoTools):
         "2017_06_15": ["jeudi 15", 14, 30, "\u00c9claircies"],
         ici !!!! "2017_06_16": ["vendredi 16", 17, 29, "\u00c9claircies"],
         "2017_06_22": ["jeudi 22", 15, 31, "\u00c9claircies"]},
-        '''
+        """
 
         self.real_weathers = OrderedDict()
 
@@ -173,7 +173,7 @@ class MeteoGaps(MeteoTools):
         print("Nombre de jours avec temps réel", len(self.real_weathers))
 
     def inversion_du_dict_forecast(self):
-        '''
+        """
         forecast =
         { j_h = "2017_08_01_01":
             prev_dict = {"2017_08_11": ["vendredi 11", 12, 26, "\u00c9claircies"],
@@ -197,7 +197,7 @@ class MeteoGaps(MeteoTools):
             "2017_08_02_10": ["mer 02", 14, 29, "\u00c9claircies"],
             ...........}
 
-        '''
+        """
 
         self.forecasts_inv = OrderedDict()
 
@@ -214,7 +214,7 @@ class MeteoGaps(MeteoTools):
             print(self.forecasts_inv)
 
     def set_gaps(self):
-        '''
+        """
         { "2017_08_02":
             "2017_08_01_01": ["mercredi 02", 14, 28, "\u00c9claircies"],
             "2017_08_02_10": ["mer 02", 14, 29, "\u00c9claircies"],
@@ -223,7 +223,7 @@ class MeteoGaps(MeteoTools):
         {"2017_08_02": { "2017_08_01_01": [0, 0, 0],
                          "2017_06_02_10": [1, 1, 1],
                             etc .... } }
-        '''
+        """
 
         # Le dict des écarts
         self.gaps = OrderedDict()

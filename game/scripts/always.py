@@ -24,7 +24,7 @@
 
 ################# Version pour histogram.blend #################
 
-'''
+"""
 A partir de la 61ème frame, lancé à chaque frame durant tout le jeu.
 
 Ajout d'objets
@@ -43,7 +43,7 @@ addObject(object, other, time=0)
                          A time of 0 means the object will last forever.
 
     Returns:    The newly added object.
-'''
+"""
 
 
 from time import sleep
@@ -69,7 +69,7 @@ def main():
 
     # Init ["always"] = 0 pour once.py
     if gl.tempoDict["always"].tempo == 1:
-        print("Initialisation")
+        print("Initialisation de always.py")
 
         # Reset pour la suite
         gl.tempoDict["day"].unlock()
@@ -82,6 +82,7 @@ def main():
     # ensuite toujours à partir de 1
     else:
         if gl.tempoDict["day"].tempo == 0:
+            gl.current_note = 0
             # Maj de gl.day_number
             set_day_number(game_obj)
 
@@ -91,7 +92,7 @@ def main():
             if not gl.restart:
                 update_chronologic_histo(game_obj)
                 icons.main(game_obj)
-                gl.note_index = 0
+                gl.icon_index = -1
                 set_spread(game_obj)
 
                 play_note()
@@ -101,9 +102,9 @@ def main():
 
 
 def update_chronologic_histo(game_obj):
-    '''Affichge des temp mini et maxi positionné en horizontal par rapport
+    """Affichge des temp mini et maxi positionné en horizontal par rapport
     à un point fixe à droite, le jour affiché=current_day à 23h.
-    '''
+    """
 
     # pour ajout des objets
     empty = game_obj["Empty"]
@@ -113,7 +114,7 @@ def update_chronologic_histo(game_obj):
     datas = gl.chronologic[gl.day_number]
     datas.sort()
 
-    life =  gl.time - 15
+    life =  gl.time - gl.correction
 
     for val in datas:
         if val:
@@ -131,7 +132,7 @@ def update_chronologic_histo(game_obj):
             add_rose(val, empty, scene, X, Z, life, indice)
 
 def add_rose(val, empty, scene, X, Z, life, indice):
-    '''Ajout des minis ou des maxis'''
+    """Ajout des minis ou des maxis"""
 
     empty.worldPosition = (X, 0, Z)
     obj_added = scene.addObject("rose", empty, life)
@@ -162,10 +163,10 @@ def traits_display(game_obj):
         obj_added.worldScale = (0.02, 0, 4)
 
 def set_day_number(game_obj):
-    '''Toutes les gl.frame,
+    """Toutes les gl.frame,
     récup et affichage des prévisions d'un nouveau jour,
     pour histogramm dynamic.
-    '''
+    """
 
     # Bidouille pour partir à and de once.py
     if gl.tempoDict["always"].tempo == 1:
@@ -197,7 +198,6 @@ def set_spread(game_obj):
 
     mini = []
     maxi = []
-    temps = []
 
     try:
         if gl.day_number < len(gl.days):
@@ -205,7 +205,6 @@ def set_spread(game_obj):
                 # k = int, v = [None] ou [(-161, '2017_09_16_06', [-1, -2, -2]), ....
                 mini.append( val[2][0])
                 maxi.append( val[2][1])
-                temps.append(val[2][2])
 
         mini.sort()
         spread[0][0] = mini[0]
@@ -294,15 +293,19 @@ def keys():
         gl.tempoDict["day"].tempo = -1
 
 def play_note():
+    """Joue la note au changement de jour,
+    somme des valeurs absolues des écarts
+    """
+
     note = gl.note
-    #print(note)
     note = int(note*36/30)
     if 0 <= note < 36:
+        print("Note:", note)
         note = str(note)
         gl.sound[note].play()
 
 def pretty_date(date):
-    '''Retourne une date à la française'''
+    """Retourne une date à la française"""
 
     return gl.meteo_tools.get_pretty_date(date)
 

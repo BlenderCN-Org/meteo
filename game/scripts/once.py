@@ -85,7 +85,7 @@ def var_from_conf():
 
 
 def set_chronologic():
-    '''Crée un dict gl.chronologic
+    """Crée un dict gl.chronologic
     la clé crée l'ordre
     Le nombre de clés = nombre de jours = len(gl.days)
 
@@ -99,7 +99,7 @@ def set_chronologic():
             (-27, '2017_06_11_20', [0, 1, 0]),
              .... ],
      2: [....}
-    '''
+    """
 
     # La clé fait l'ordre = int = cle
     gl.chronologic = {}
@@ -126,7 +126,7 @@ def set_chronologic():
 
 
 def get_one_day_gap():
-    '''168 heures avant le jour courrant'''
+    """168 heures avant le jour courrant"""
 
     somme = 0
     p = 0
@@ -145,7 +145,7 @@ def get_one_day_gap():
 
 
 def get_seven_days_gap():
-    '''168 heures avant le jour courrant'''
+    """168 heures avant le jour courrant"""
 
     somme = 0
     p = 0
@@ -164,9 +164,9 @@ def get_seven_days_gap():
 
 
 def get_hour_gap(current_day, day_hour):
-    '''Retourne le nombre d'heures (int) entre jour courant à 23h et une
+    """Retourne le nombre d'heures (int) entre jour courant à 23h et une
     date heure.
-    '''
+    """
 
     hours = gl.meteo_tools.hours_between_date(current_day + "_23", day_hour)
 
@@ -174,7 +174,7 @@ def get_hour_gap(current_day, day_hour):
 
 
 def get_conf():
-    '''Récupère la configuration depuis le fichier *.ini.'''
+    """Récupère la configuration depuis le fichier *.ini."""
 
     # Le dossier courrant est le dossier dans lequel est le *.blend
     # /media/data/3D/projets/meteo/game/
@@ -196,12 +196,16 @@ def get_conf():
 
 
 def set_gris_table():
-    '''Table des objets blender plan en gris.'''
+    """Table des objets blender plan en gris."""
     gl.gris_table = ["gris0", "gris1", "gris2", "gris3", "gris4", "gris5",
                      "gris6", "gris7", "gris8", "gris9", "gris10"]
 
 
 def variable_init():
+
+    # Correction de life des objets ajoutés
+    gl.correction = gl.conf["rythm"]["correction"]
+
     gl.manual = 0
     gl.restart = 0
     gl.note = 0
@@ -224,10 +228,15 @@ def variable_init():
 
 
 def set_tempo():
+    # Frame entre les notes
+    n = gl.time/14
+    n = int(n)
+    n -= 2
+
     tempo_liste = [("always", -1),
                    ("print", 60),
                    ("day", gl.day_frame),
-                   ("note", int(gl.time / 14))]
+                   ("note", n)]
 
     gl.tempoDict = Tempo(tempo_liste)
     gl.tempoDict["day"].lock()
@@ -241,7 +250,7 @@ def get_gaps_file():
 
 
 def get_days():
-    '''Défini tous les jours pour lesquels il y a des prévisions.'''
+    """Défini tous les jours pour lesquels il y a des prévisions."""
 
     # Le numéro du jour en cours dans la liste des jours
     # Dénini le numéro du 1er jour affiché
@@ -276,6 +285,6 @@ def audio_init():
     gl.sound = EasyAudio(soundList, path)
 
     # la note des icones en cours
-    gl.note_index = 0
+    gl.icon_index = 0
     gl.icons_list = [0] * 14
     gl.current_note = 0

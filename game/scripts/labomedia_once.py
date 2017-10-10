@@ -22,7 +22,7 @@
 #
 #############################################################################
 
-'''
+"""
 Ne jamais modifier ce script.
 
 Les scripts:
@@ -33,13 +33,13 @@ Les autres scripts sont importés en temps que modules.
 
 Il est alors possible de les modifier dans un éditeur externe
 sans avoir à les recharger dans Blender.
-'''
+"""
 
 # imports locaux
 from scripts import once
 
 
 def main():
-    '''Fonction lancée à chaque frame dans blender en temps que module.'''
+    """Fonction lancée à chaque frame dans blender en temps que module."""
 
     once.main()

@@ -31,13 +31,13 @@ from collections import OrderedDict
 import time
 import locale
 
-'''Des méthodes souvent appelées par les autres scripts.'''
+"""Des méthodes souvent appelées par les autres scripts."""
 
 
 class MeteoTools:
 
     def get_day_gap(self, j1, j2):
-        '''Retourne le nombre de jours entre 2 date.'''
+        """Retourne le nombre de jours entre 2 date."""
 
         a = self.get_real_date_time(j1)
         b = self.get_real_date_time(j2)
@@ -45,7 +45,7 @@ class MeteoTools:
         return (b - a).days
 
     def sort_dict(self, old_dict):
-        '''Tri d'un dict par clé en date.'''
+        """Tri d'un dict par clé en date."""
 
         new_dict = OrderedDict()
         old_dict_keys = list(old_dict)
@@ -56,14 +56,14 @@ class MeteoTools:
         return new_dict
 
     def get_all_files(self, master_dir):
-        '''Retourne un dict avec
+        """Retourne un dict avec
         clé = répertoires
         valeur = liste de tous les fichiers avec chemin relatif
         dict = {    "2017_06": [/abs/meteo_x0.html, /abs/meteo_x1.html .....],
                     "2017_07": [/abs/meteo_y0.html, /abs/meteo_y1.html .....],}
 
         master_dir = répertoire dans le dossier de ce script.
-        '''
+        """
 
         all_files = {}
 
@@ -78,9 +78,9 @@ class MeteoTools:
         return all_files
 
     def files_dict_to_list(self, files_dict):
-        '''Retourne une liste avec tous les fichiers
+        """Retourne une liste avec tous les fichiers
         d'un dict retourné par get_all_files()
-        '''
+        """
 
         tous_list = []
         for month_all_files in files_dict.values():
@@ -89,7 +89,7 @@ class MeteoTools:
         return tous_list
 
     def read_file(self, file_name):
-        '''Retourne les datas lues dans le fichier avec son chemin/nom.'''
+        """Retourne les datas lues dans le fichier avec son chemin/nom."""
 
         # Open our local file
         with open(file_name) as f:
@@ -99,16 +99,16 @@ class MeteoTools:
         return read_data
 
     def write_data_in_file(self, data, fichier):
-        '''Ecrit les data dans le fichier, écrase l'existant.'''
+        """Ecrit les data dans le fichier, écrase l'existant."""
 
         with open(fichier, 'w') as f:
             f.write(data)
         f.close()
 
     def get_json_file(self, fichier):
-        '''Retourne le json décodé des datas lues
+        """Retourne le json décodé des datas lues
         dans le fichier avec son chemin/nom.
-        '''
+        """
 
         # Open our local file
         with open(fichier) as f:
@@ -120,9 +120,9 @@ class MeteoTools:
         return data
 
     def write_json_file(self, data, fichier):
-        '''Converti en json, écrit les data dans le fichier,
+        """Converti en json, écrit les data dans le fichier,
         écrase l'existant.
-        '''
+        """
 
         data = dumps(data)
         with open(fichier, 'w') as f:
@@ -137,30 +137,30 @@ class MeteoTools:
         return tout
 
     def append_to_file(self, lines, fichier):
-        '''Ajoute une liste de data au fichier'''
+        """Ajoute une liste de data au fichier"""
 
         with open(fichier, 'a') as f:
             f.write('\n'.join(lines))
         f.close()
 
     def data_to_json(self, data):
-        '''Retourne le json des datas'''
+        """Retourne le json des datas"""
 
         return dumps(data)
 
     def get_real_date_time(self, key):
-        '''Retourne 2017-06-11 16:59:00 avec 2017_06_11_16_59 '''
+        """Retourne 2017-06-11 16:59:00 avec 2017_06_11_16_59 """
 
         return datetime.strptime(key, '%Y_%m_%d_%H_%M')
 
     def hours_between_date(self, key1, key2):
-        '''Retourne le nombre d'heures entres les 2 dates:
+        """Retourne le nombre d'heures entres les 2 dates:
         "2017_07_31_12": [0, 5, -2], 31 juillet à 12h
         "2017_08_01_00": [1, 3, 0],   1 aout    à 1h
 
         key1 = "2017_07_31_12"
         key2 = "2017_08_01_00"
-        '''
+        """
 
         date_1 = self.get_real_date_time(key1 + "_00")
         date_2 = self.get_real_date_time(key2 + "_00")
@@ -168,7 +168,7 @@ class MeteoTools:
         return int(((date_2 - date_1).total_seconds())/3600)
 
     def get_pretty_date(self, key):
-        '''Retourne 11 juin 2017 avec 2017_06_11 '''
+        """Retourne 11 juin 2017 avec 2017_06_11 """
 
         #print time.strftime("%a, %d %b %Y %H:%M:%S")
         locale.setlocale(locale.LC_TIME, "fr_FR.UTF-8") # fr
@@ -179,26 +179,26 @@ class MeteoTools:
         return day
 
     def get_date_hour_key_from_datetime(self, day_time):
-        '''Retourne le str 2017_06_11_16 avec 2017-06-11 16:05:30 de type datetime.'''
+        """Retourne le str 2017_06_11_16 avec 2017-06-11 16:05:30 de type datetime."""
 
         return '{:%Y_%m_%d_%H}'.format(day_time)
 
     def get_date_key_from_datetime(self, day_time):
-        '''Retourne le str 2017_06_11 avec 2017-06-11 16:05:30 de type datetime.'''
+        """Retourne le str 2017_06_11 avec 2017-06-11 16:05:30 de type datetime."""
 
         return '{:%Y_%m_%d}'.format(day_time)
 
     def get_date_hour_mn_key_from_datetime(self, day_time):
-        '''Retourne le str 2017_06_11_16_05
+        """Retourne le str 2017_06_11_16_05
         avec 2017-06-11 16:05:30 de type datetime.
-        '''
+        """
 
         return '{:%Y_%m_%d_%H_%M}'.format(day_time)
 
     def get_thirteen_days(self, today):
-        '''Retourne une liste des 13 jours en symbole suivant le
+        """Retourne une liste des 13 jours en symbole suivant le
         today = 2017-07-29 01:00:00
-        '''
+        """
 
         thirteen_days = []
 
@@ -211,9 +211,9 @@ class MeteoTools:
         return thirteen_days
 
     def get_thirteen_days_before(self, today):
-        '''Retourne une liste des 13 jours en symbole suivant le
+        """Retourne une liste des 13 jours en symbole suivant le
         today = 2017-07-29 01:00:00
-        '''
+        """
 
         thirteen_days = []
 
@@ -225,9 +225,9 @@ class MeteoTools:
         return thirteen_days
 
     def get_weather_types(self):
-        '''Dict des types de temps avec leur poids.
+        """Dict des types de temps avec leur poids.
         Ce n'est plus utilisé.
-        '''
+        """
 
         weather_types = {   "Nuit claire": 0,
                             "Ensoleillé": 1,
@@ -255,8 +255,8 @@ class MeteoTools:
         return weather_types
 
     def print_all_key_value(self, my_dict):
-        '''Imprime un dict contenant un dict, affiche le nombre de clés total.
-        '''
+        """Imprime un dict contenant un dict, affiche le nombre de clés total.
+        """
 
         total = 0
 
@@ -269,38 +269,38 @@ class MeteoTools:
         print("pour un théorique par jour de =", 24*1)
 
     def get_year(self, key):
-        '''Retourne l'année soit 2017 dans 2017_06_22_15_05_48.'''
+        """Retourne l'année soit 2017 dans 2017_06_22_15_05_48."""
 
         return key[0:-12]
 
     def get_month(self, key):
-        '''Retourne mois soit 06 dans 2017_06_22_15_05_48.'''
+        """Retourne mois soit 06 dans 2017_06_22_15_05_48."""
 
         return key[5:-9]
 
     def get_day(self, key):
-        '''Retourne jour soit 22 dans 2017_06_22_15_05_48.'''
+        """Retourne jour soit 22 dans 2017_06_22_15_05_48."""
 
         return key[8:-6]
 
     def get_hour(self, key):
-        '''Retourne heure soit 15 dans 2017_06_22_15_05_48.'''
+        """Retourne heure soit 15 dans 2017_06_22_15_05_48."""
 
         return key[11:-3]
 
     def get_year_month(self, key):
-        '''Retourne année mois jour soit 2017_06_22 dans 2017_06_22_15_05_48'''
+        """Retourne année mois jour soit 2017_06_22 dans 2017_06_22_15_05_48"""
 
         return key[0:-9]
 
     def get_year_month_day(self, key):
-        '''Retourne année mois jour soit 2017_06_22 dans 2017_06_22_15_05_48'''
+        """Retourne année mois jour soit 2017_06_22 dans 2017_06_22_15_05_48"""
 
         return key[0:-6]
 
     def sort_jours(self, jours):
-        '''Retourne la liste triée de la liste de 2017_06_23_05, 2017_06_27_17.
-        '''
+        """Retourne la liste triée de la liste de 2017_06_23_05, 2017_06_27_17.
+        """
 
         sorted_jours = []
 
@@ -332,9 +332,9 @@ class MeteoTools:
         return jours
 
     def create_directory(self, directory):
-        '''Crée le répertoire avec le chemin absolu.
+        """Crée le répertoire avec le chemin absolu.
         ex: /media/data/3D/projets/meteo/meteo_forecast/2017_06
-        '''
+        """
 
         try:
             Path(directory).mkdir(mode=0o777, parents=False)
@@ -344,17 +344,17 @@ class MeteoTools:
             pass
 
     def get_absolute_path(self, a_file_or_a_directory):
-        '''Retourne le chemin absolu d'un répertoire ou d'un fichier
+        """Retourne le chemin absolu d'un répertoire ou d'un fichier
         n'importe où.
-        '''
+        """
 
         return os.path.abspath(a_file_or_a_directory)
 
     def create_dir_year_month_in_meteo_files(self, year_month):
-        '''Crée le répertoires année_mois.
+        """Crée le répertoires année_mois.
         year_month = 2017_09
         pas de /
-        '''
+        """
 
         # Chemin absolu
         meteo_files_path = self.get_absolute_path("meteo_files")
@@ -363,9 +363,9 @@ class MeteoTools:
         self.create_directory(meteo_files_path + "/" + year_month)
 
     def get_str_from_datetime(day):
-        '''Retourne le str 2017_06_11_16
+        """Retourne le str 2017_06_11_16
         avec 2017-06-11 16:05:30 de type datetime
-        '''
+        """
 
         return '{:%Y_%m_%d_%H}'.format(day)
 
