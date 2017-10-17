@@ -1,7 +1,5 @@
 ## Bangs de météo
-#### Plus les prévisions météo sont mauvaises, plus il y aura de bangs.
-
-## C'est pas fini !
+#### Les prévisions de chaque jour sont matérialisées dans blender
 
 ### License and Copyright
 
@@ -11,13 +9,11 @@ Les scripts sont sous GNU GENERAL PUBLIC LICENSE Version 2.
 
 Pour plus détails, voir le fichier License.
 
-### ça fait quoi ?
 #### Principe
 Sauvegarde des prévisions de Meteo France pour la ville de Gotham toutes les heures.
-Les mauvaises prévisions vont faire des bangs dans une fenêtre OpenCV.
 
 #### Visualisation dans Blender
-Les prévisions pendant 14 jours de chaque jour créent un histogramme, les jours défilent automatiquement, ou manuellement.
+Les prévisions pendant 14 jours de chaque jour créent un histogramme des températures mini et maxi, avec une icône du type de temps par jour, les jours défilent automatiquement, ou manuellement.
 
 Raccoucis:
 * Espace: bascule auto/manu
@@ -46,6 +42,7 @@ sudo apt-get install blender
 sudo apt-get install python3-bs4
 ~~~
 
+### Bonus qui n'a rien à voir, c'est juste pour ne pas le perdre
 #### Installation OpenCV
 Il existe un tas de tutos qui expliquent comment compiler opencv, mais ces tutos sont des reprises d'un pov'gars qui a trouvé intelligent de le faire dans un virtualenv, bien sûr les chinois ont copié !
 
@@ -86,7 +83,7 @@ sudo make install
 
 « Bonne chance pour une prochaine fois, tas de nullards ! Boum ! Envoyé ! Je suis bien l'invincible ! »
 
-### OpenCV
+#### OpenCV et le canal alpha
 cv2.imshow() n'affiche pas le canal alpha d'une image, matplotlib le fait mais avec un faible fps.
 
 OpenCV charge les images avec le canal alpha, certaines fonctions utilise le canal alpha,
@@ -98,7 +95,8 @@ Un post du forum opencv propose:
 
 Je vais faire simple, un seul bang à la fois, ou + si je suis courageux.
 
+J'y reviendrai plus tard !
+
 ### Merci à:
 
 * Labomedia
-

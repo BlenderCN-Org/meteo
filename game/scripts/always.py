@@ -82,7 +82,7 @@ def main():
     # ensuite toujours à partir de 1
     else:
         if gl.tempoDict["day"].tempo == 0:
-            gl.current_note = 0
+            #gl.current_note = 0
             # Maj de gl.day_number
             set_day_number(game_obj)
 
@@ -199,12 +199,15 @@ def set_spread(game_obj):
     mini = []
     maxi = []
 
-    try:
-        if gl.day_number < len(gl.days):
-            for val in gl.chronologic[gl.day_number]:
-                # k = int, v = [None] ou [(-161, '2017_09_16_06', [-1, -2, -2]), ....
-                mini.append( val[2][0])
-                maxi.append( val[2][1])
+    if gl.day_number < len(gl.days):
+        for val in gl.chronologic[gl.day_number]:
+        # k = int, v = [None] ou [(-161, '2017_09_16_06', [-1, -2, -2]), ....
+            try:
+                mini.append(val[2][0])
+                maxi.append(val[2][1])
+            except:
+                mini.append(0)
+                maxi.append(0)
 
         mini.sort()
         spread[0][0] = mini[0]
@@ -214,14 +217,6 @@ def set_spread(game_obj):
         spread[1][0] = maxi[0]
         spread[1][1] = maxi[-1]
 
-    except:
-        print("Spread est None")
-        spread[0][0] = 0
-        spread[0][1] = 0
-        spread[1][0] = 0
-        spread[1][1] = 0
-
-    #print(spread[1][0], spread[1][1])
     game_obj["mini mini"]["Text"] = spread[0][0]
     game_obj["mini maxi"]["Text"] = spread[0][1]
 
@@ -300,7 +295,7 @@ def play_note():
     note = gl.note
     note = int(note*36/30)
     if 0 <= note < 36:
-        print("Note:", note)
+        print("Note spread du jour:", note)
         note = str(note)
         gl.sound[note].play()
 

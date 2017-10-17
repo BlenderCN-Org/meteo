@@ -62,9 +62,8 @@ ICONS = [   "soleil",
 
 def main(game_obj):
     data = get_day_data()
-    icons_list = get_icons(data)
-    gl.icons_list = icons_list
-    set_icon_position(icons_list, game_obj)
+    gl.icons_list = get_icons(data)
+    set_icon_position(gl.icons_list, game_obj)
 
 def get_day_data():
     """[(-23, '2017_06_12_00', [0, 1, 'soleil']),
@@ -84,8 +83,11 @@ def get_icons(data):
         2017_06_10_14
         2017_06_09_14
         etc ....
-    dans une liste ["soleil", "ciel_voile", etc ....]
-    classé de j à j -13
+    dans une liste [ ("2017_06_12", "soleil"),
+                     ("2017_06_11_14", "soleil"),
+                     (2017_06_10_14, "ciel_voile")
+                     , etc ....]
+    classé de j à j -14
     """
 
     icons_list = []
@@ -99,13 +101,6 @@ def get_icons(data):
 
     icons_list.sort()
 
-    """
-    icons_list = [
-    ('2017_09_23', 'eclaircie'),
-    ('2017_09_24', 'eclaircie'),
-    ('2017_10_06', 'eclaircie')
-    ]
-    """
     icons_list = icons_list_completion(icons_list)
 
     return icons_list
@@ -127,7 +122,7 @@ def get_fourteen_days_before():
     return fourteen_days
 
 def icons_list_completion(icons_list):
-    """len de = 14 icons_list"""
+    """len de = 14 icons_list en ajoutant le jour courrant."""
 
     fourteen_days = get_fourteen_days_before()
     icons_list_new = [None]*14
@@ -144,8 +139,7 @@ def icons_list_completion(icons_list):
 def set_icon_position(icons_list, game_obj):
     """ Z = 0
         Y = 0
-        X de 27 à 33 pour 13 icones
-        pas de 1ère
+        X de 27 à 33 pour 14 icones
         14 intervales
         6/14 = 0.42857
     """
@@ -179,7 +173,7 @@ def icons_note():
             if gl.current_note != note:
                 if 0 <= note < 36:
                     new_note = str(note + 15)
-                    print("Note:", new_note)
+                    print("Note des icones:", new_note, current_icon)
                     gl.sound[new_note].play()
 
             gl.current_note = note
