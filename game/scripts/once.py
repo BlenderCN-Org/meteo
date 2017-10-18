@@ -182,10 +182,10 @@ def get_conf():
     print("Dossier courant depuis once.py {}".format(current_dir))
 
     # TODO: trouver le *.ini en auto
-    gl.ma_conf = MyConfig(current_dir + "scripts/bgb.ini")
+    gl.ma_conf = MyConfig(current_dir + "scripts/meteo.ini")
     gl.conf = gl.ma_conf.conf
 
-    print("\nConfiguration du jeu bgb:")
+    print("\nConfiguration du jeu:")
     print(gl.conf, "\n")
 
     # Le fichier des datas
