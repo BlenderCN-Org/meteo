@@ -42,60 +42,31 @@ sudo apt-get install blender
 sudo apt-get install python3-bs4
 ~~~
 
-### Bonus qui n'a rien à voir, c'est juste pour ne pas le perdre
-#### Installation OpenCV
-Il existe un tas de tutos qui expliquent comment compiler opencv, mais ces tutos sont des reprises d'un pov'gars qui a trouvé intelligent de le faire dans un virtualenv, bien sûr les chinois ont copié !
+### Serveur
+Le script meteo_download.py enregistre les prévisions toutes les heures.
+Il doit tourner en permanence.
 
-##### Labomedia ne compile pas dans un virtualenv
-Réalisé sur debian jessie 8.3 et python 3.4 avec CmakeGUI Qt
+#### Dossiers et fichiers à copier sur le serveur
 
-http://remananr.com/Blog/opencv-in-python3/
+* Coller meteo_download et autorestart.sh dans /home/utilisateur_courant
 
-~~~text
-sudo apt-get install libopencv-dev python-opencv
-sudo apt-get install build-essential cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
-sudo apt install python3-dev libpython3.4-dev python3-numpy
-python3.4-config --includes
-~~~
+#### Crontab
 
-Récupération des sources:
+Permet de lancer des tâches répétitives
+
+Edition
 
 ~~~text
-git clone https://github.com/opencv/opencv.git
+ crontab -e
 ~~~
 
-###### Utiliser CmakeGUI Qt
-
-voir http://implab.ce.unipr.it/?p=21
-
-Définir:
-* Répertoire sources
-* Répertoire destination
-
-puis clic sur Configure puis Generate
-
-Ouvrir un terminal dans le dossier des sources
+ajouter
 
 ~~~text
-make -j8
-sudo make install
+ 1 */1 * * * sh ./autorestart.sh > /tmp/autorestart.log
 ~~~
 
-« Bonne chance pour une prochaine fois, tas de nullards ! Boum ! Envoyé ! Je suis bien l'invincible ! »
-
-#### OpenCV et le canal alpha
-cv2.imshow() n'affiche pas le canal alpha d'une image, matplotlib le fait mais avec un faible fps.
-
-OpenCV charge les images avec le canal alpha, certaines fonctions utilise le canal alpha,
-mais par exemple cv2.add() ne fait pas la somme avec les canaux alpha, il les ignore,
-d'où le cv2.threshold() de la doc, qui crée un masque, mais l'image collée dans le masque se fera sans prendre en compte le canal alpha.
-
-Un post du forum opencv propose:
-"Faîtes-vous même votre méthode !"
-
-Je vais faire simple, un seul bang à la fois, ou + si je suis courageux.
-
-J'y reviendrai plus tard !
+Lance l'action toutes les heures à 1 mn
 
 ### Merci à:
 

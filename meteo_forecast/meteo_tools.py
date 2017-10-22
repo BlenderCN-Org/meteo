@@ -340,8 +340,7 @@ class MeteoTools:
             Path(directory).mkdir(mode=0o777, parents=False)
             print("Création du répertoire: {}".format(directory))
         except FileExistsError as e:
-            #print(e)
-            pass
+            print(e)
 
     def get_absolute_path(self, a_file_or_a_directory):
         """Retourne le chemin absolu d'un répertoire ou d'un fichier
@@ -356,8 +355,13 @@ class MeteoTools:
         pas de /
         """
 
-        # Chemin absolu
-        meteo_files_path = self.get_absolute_path("meteo_files")
+        try:
+            # Si ce script python lancé depuis le dossier meteo_downlaod
+            meteo_files_path = self.get_absolute_path("meteo_files")
+        except:
+            # lancé depuis le home avec meteo_downlaod dans le home
+            directory = "meteo_downlaod/meteo_files"
+            meteo_files_path = self.get_absolute_path(directory)
 
         # Création
         self.create_directory(meteo_files_path + "/" + year_month)
@@ -372,7 +376,6 @@ class MeteoTools:
 
 def test0():
     tools = MeteoTools()
-    print(os.listdir("meteo_files"))
 
     # fichier
     files_path = tools.get_absolute_path("beautiful_meteo.py")
@@ -392,7 +395,7 @@ def test0():
     tools.create_directory(meteo_files_path + "/2017_09")
 
     # en 1 ligne
-    tools.create_dir_year_month_in_meteo_files("2018_01")
+    tools.create_dir_year_month_in_meteo_files("2018_02")
 
 def test1():
     tools = MeteoTools()
@@ -479,4 +482,4 @@ def test5():
 
 if __name__ == "__main__":
 
-    test7()
+    test0()
