@@ -104,7 +104,7 @@ class BeautifulMeteo(MeteoTools):
             pour les 13 jours suivant.
         """
 
-        soup = BeautifulSoup(self.fichier)
+        soup = BeautifulSoup(self.fichier, "lxml")
 
         group_days_summary = soup.find_all("div", class_="group-days-summary")
         bloc_day_summary_0 = group_days_summary[0].find_all("article", class_="bloc-day-summary")
