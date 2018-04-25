@@ -29,6 +29,12 @@ Avec:
 * OpenCV 3.3.0-rc
 * Blender 2.72
 
+et
+
+* Debian 9.3
+* blender 2.78
+* python 3.5
+
 ### Installation
 #### Blender
 

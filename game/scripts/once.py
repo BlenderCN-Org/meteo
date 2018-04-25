@@ -3,7 +3,7 @@
 
 ## once.py
 
-#############################################################################
+#######################################################################
 # Copyright (C) Labomedia June 2017
 #
 #  This program is free software; you can redistribute it and/or
@@ -17,19 +17,23 @@
 #  GNU General Public License for more details.
 #
 #  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software Foundation,
-#  Inc., 51 Franproplin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#  along with this program; if not, write to the
+#  Free Software Foundation, Inc.
+#  51 Franproplin Street
+#  Fifth Floor
+#  Boston
+#  MA 02110-1301
+#  USA.
 #
-#############################################################################
+#######################################################################
 
+"""
+ Ce script est appelé par main_init.main dans blender
+ Il ne tourne qu'une seule fois pour initier las variables
+ qui seront toutes des attributs du bge.logic (gl)
+ Seuls les attributs de logic sont stockés en permanence.
+"""
 
-# Ce script est appelé par main_init.main dans blender
-# Il ne tourne qu'une seule fois pour initier las variables
-# qui seront toutes des attributs du bge.logic (gl)
-# Seuls les attributs de logic sont stockés en permanence.
-
-
-import numpy as np
 from collections import OrderedDict
 
 from bge import logic as gl
@@ -75,14 +79,12 @@ def main():
     # Pour les mondoshawan
     print("Excécution de once.py terminée")
 
-
 def var_from_conf():
     gl.control = gl.conf["test"]["control"]
 
     gl.time = gl.conf["rythm"]["time"]
     # Nombre de frame pour affichage des prévisions d'un jour
     gl.day_frame = gl.time
-
 
 def set_chronologic():
     """Crée un dict gl.chronologic
@@ -123,7 +125,7 @@ def set_chronologic():
             gl.chronologic[cle].append(None)
 
         cle += 1
-
+    print("Nombre de clés dans gl.chronologic", len(gl.chronologic))
 
 def get_one_day_gap():
     """168 heures avant le jour courrant"""
@@ -139,10 +141,13 @@ def get_one_day_gap():
             except:
                 pass
 
-    print("\n", "Nombre de jours avec écart à 1 jours:", p)
+    print("\nNombre de jours avec écart à 1 jours:", p)
     print("Somme des écarts à 1 jours:", somme)
-    print("Moyenne des écarts à 1 jours", somme / p, "\n")
-
+    if p != 0:
+        moyenne = somme / p
+    else:
+        moyenne = 0
+    print("Moyenne des écarts à 1 jours", moyenne)
 
 def get_seven_days_gap():
     """168 heures avant le jour courrant"""
@@ -158,10 +163,14 @@ def get_seven_days_gap():
             except:
                 pass
 
-    print("Nombre de jours avec écart à 7 jours:", p)
-    print("Somme des écarts à 7 jours:", somme)
-    print("Moyenne des écarts à 7 jours", somme / p, "\n")
+    if p != 0:
+        moyenne = somme / p
+    else:
+        moyenne = 0
 
+    print("\nNombre de jours avec écart à 7 jours:", p)
+    print("Somme des écarts à 7 jours:", somme)
+    print("Moyenne des écarts à 7 jours", moyenne, "\n")
 
 def get_hour_gap(current_day, day_hour):
     """Retourne le nombre d'heures (int) entre jour courant à 23h et une
@@ -171,7 +180,6 @@ def get_hour_gap(current_day, day_hour):
     hours = gl.meteo_tools.hours_between_date(current_day + "_23", day_hour)
 
     return hours
-
 
 def get_conf():
     """Récupère la configuration depuis le fichier *.ini."""
@@ -194,20 +202,17 @@ def get_conf():
     gl.fichier = current_dir[:-5] + "meteo_forecast/output/" \
                  + gl.conf["file"]["fichier"]
 
-
 def set_gris_table():
     """Table des objets blender plan en gris."""
     gl.gris_table = ["gris0", "gris1", "gris2", "gris3", "gris4", "gris5",
                      "gris6", "gris7", "gris8", "gris9", "gris10"]
 
-
 def variable_init():
 
     # Correction de life des objets ajoutés
-    gl.correction = gl.conf["rythm"]["correction"]
+    gl.correction = int(gl.conf["rythm"]["correction"] * gl.time / 240)
 
     gl.manual = 0
-    gl.restart = 0
     gl.note = 0
 
     # Nombre de barres histogramme
@@ -226,12 +231,9 @@ def variable_init():
     gl.obj_list = []
     gl.jour = "0"
 
-
 def set_tempo():
     # Frame entre les notes
-    n = gl.time/14
-    n = int(n)
-    n -= 2
+    n = int(gl.time/14)
 
     tempo_liste = [("always", -1),
                    ("print", 60),
@@ -242,19 +244,17 @@ def set_tempo():
     gl.tempoDict["day"].lock()
     gl.tempoDict["print"].lock()
 
-
 def get_gaps_file():
     gl.meteo_tools = MeteoTools()
     gl.meteo_data = gl.meteo_tools.get_json_file(gl.fichier)
     print("Fichier meto {}".format(gl.fichier))
-
 
 def get_days():
     """Défini tous les jours pour lesquels il y a des prévisions."""
 
     # Le numéro du jour en cours dans la liste des jours
     # Dénini le numéro du 1er jour affiché
-    gl.day_number = 0
+    gl.day_number = gl.conf["test"]["init"]
     gl.current_day = "2017_06_11"
 
     # la prévision affiché
@@ -272,8 +272,8 @@ def get_days():
         gl.days.append(k)
     gl.days.sort()
 
-    print("\n\nNombre de jours avec prévisions y compris les None:", len(gl.days))
-
+    a = "\n\nNombre de jours avec prévisions y compris les None:"
+    print(a, len(gl.days))
 
 def audio_init():
     soundList = []

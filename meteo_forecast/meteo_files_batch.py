@@ -23,12 +23,12 @@
 #############################################################################
 
 
-
-# 1er fichier à faire tourner
-# Analyse les fichiers téléchargés si pas encore analysés
-# Le fichier analysed.txt doit exister et contenir au moins: []
-# Le fichier forecast.txt doit exister et contenir au moins: {}
-# TODO créer les fichiers en auto
+"""
+1er fichier à faire tourner
+Analyse les fichiers téléchargés si pas encore analysés
+Le fichier analysed.txt doit exister et contenir au moins: []
+Le fichier forecast.txt doit exister et contenir au moins: {}
+"""
 
 
 from json import dumps, loads

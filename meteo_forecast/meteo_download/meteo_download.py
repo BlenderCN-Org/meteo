@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# download_meteo.py
+# meteo_download.py
 
 #############################################################################
 # Copyright (C) Labomedia Juin 2017

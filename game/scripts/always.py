@@ -22,8 +22,6 @@
 #
 #############################################################################
 
-################# Version pour histogram.blend #################
-
 """
 A partir de la 61ème frame, lancé à chaque frame durant tout le jeu.
 
@@ -82,24 +80,21 @@ def main():
     # ensuite toujours à partir de 1
     else:
         if gl.tempoDict["day"].tempo == 0:
-            #gl.current_note = 0
+
             # Maj de gl.day_number
             set_day_number(game_obj)
+            gl.icon_index = -1
 
             # Pour text
             set_resolution_visible(game_obj)
-
-            if not gl.restart:
-                update_chronologic_histo(game_obj)
-                icons.main(game_obj)
-                gl.icon_index = -1
-                set_spread(game_obj)
-
-                play_note()
-
-        # note avec icon rapide
-        icons.icons_note()
-
+            update_chronologic_histo(game_obj)
+            icons.main(game_obj)
+            set_spread(game_obj)
+            # au changement de jour
+            play_note()
+        else:
+            # à chaque changement d'icone
+            icons.icons_note()
 
 def update_chronologic_histo(game_obj):
     """Affichge des temp mini et maxi positionné en horizontal par rapport
@@ -181,8 +176,7 @@ def set_day_number(game_obj):
         print("\nJour en cours {} numéro {} ".format(gl.current_day,
                                                         gl.day_number))
     else:
-         gl.restartGame()
-         gl.restart = 1
+        gl.day_number = 0
 
 def pretty_date_display(game_obj):
     if gl.day_number < len(gl.days):

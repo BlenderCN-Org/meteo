@@ -23,9 +23,11 @@
 #############################################################################
 
 
-# 2ème fichier à faire tourner
-# Calcul les écarts
-# Le fichier gaps.txt doit exister et contenir au moins: {}
+"""
+2ème fichier à faire tourner
+Calcul les écarts
+Le fichier gaps.txt doit exister et contenir au moins: {}
+"""
 
 
 import os
@@ -81,7 +83,6 @@ class MeteoGaps(MeteoTools):
             wi = weather_icon[w]
         except:
             print("Vous devez ajouter {} à weather_icon".format(w))
-            #os._exit(0)
             wi = None
         return wi
 
@@ -288,6 +289,7 @@ def main():
 
     print("\nCalcul des écarts OK")
     print("Vous pouvez lancer le jeu")
+
 
 if __name__ == "__main__":
 

@@ -22,6 +22,7 @@
 #
 #############################################################################
 
+from random import randint
 
 from time import sleep
 from bge import logic as gl
@@ -57,6 +58,8 @@ ICONS = [   "soleil",
             "risque_de_grele",
             "orages",
             "risque_d_orages",
+            "brume",
+            "averses_de_neige",
             None]
 
 
@@ -164,17 +167,19 @@ def set_icon_position(icons_list, game_obj):
             obj_added.worldScale = (1,1,1)
 
 def icons_note():
+    """len de gl.icons_list=14, gl.icon_index=maxi 13"""
+
+
+
     if gl.tempoDict["note"].tempo == 5:
-        # len de gl.icons_list=14, gl.icon_index=maxi 13
         if gl.icon_index < 14:
             current_icon = gl.icons_list[gl.icon_index][1]
             note = ICONS.index(current_icon)
 
             if gl.current_note != note:
                 if 0 <= note < 36:
-                    new_note = str(note + 15)
-                    print("Note des icones:", new_note, current_icon)
-                    gl.sound[new_note].play()
+                    print("Note des icones:", note)
+                    gl.sound[str(note)].play()
 
             gl.current_note = note
 
