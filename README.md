@@ -23,13 +23,6 @@ Raccoucis:
 * Right: avance de 10 jours
 
 ### Testé sur
-* Debian Jessie 8.3
-Avec:
-* python 3.4
-* OpenCV 3.3.0-rc
-* Blender 2.72
-
-et
 
 * Debian 9.3
 * blender 2.78
