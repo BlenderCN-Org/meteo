@@ -31,5 +31,4 @@ analysed/
 opencv_circle/test
 opencv_circle/images
 *.html
-*.txt
 *.out
